@@ -6,10 +6,13 @@ Adds the right-click options that macOS Finder is missing. Right-click **empty s
 |---|---|
 | **New File…** | Asks for a name with any extension (`notes.md`, `main.py`, `.env`), creates it in the current folder and selects it. Never overwrites. |
 | **Open Terminal Here** | Opens iTerm2 (or Terminal, if iTerm2 isn't installed) in the current folder. |
+| **Open Folder With ▸** | Opens the current folder in an IDE or editor. Lists the ones you have installed (VS Code, Cursor, Windsurf, Zed, Sublime Text, JetBrains IDEs, Android Studio, Xcode…), plus **Other App…** to pick any app. |
 | **Copy Path** | Copies the current folder's full path. |
 | **Go to Parent Folder** | Moves the window up one level, even when Finder's Back button is greyed out (e.g. a window opened with `open .`). |
 
-Right-clicking a file or folder works too: **Copy Path** copies the selected items' paths and **Open Terminal Here** opens in the selected folder.
+Right-clicking a file or folder works too: **Copy Path** copies the selected items' paths, and **Open Terminal Here** and **Open Folder With** use the selected folder.
+
+To add an editor to the list, add its bundle ID to `editors` in `Sources/FinderMenuExtension/FinderSync.swift`. You can find an app's bundle ID with `osascript -e 'id of app "AppName"'`.
 
 ## Install
 

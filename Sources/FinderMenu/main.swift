@@ -1,4 +1,5 @@
 import Cocoa
+import UniformTypeIdentifiers
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var handledURL = false
@@ -11,6 +12,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             switch c.host {
             case "newfile": newFile(in: folder(for: path))
             case "terminal": openTerminal(at: folder(for: path)); return
+            case "openwith":
+                openFolder(folder(for: path), appID: c.queryItems?.first(where: { $0.name == "app" })?.value)
+                return
             case "up": goUp(from: path)
             default: break
             }
@@ -24,7 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.activate(ignoringOtherApps: true)
             let a = NSAlert()
             a.messageText = "Finder Menu is installed"
-            a.informativeText = "Right-click inside any Finder folder to use New File…, Open Terminal Here, Copy Path and Go to Parent Folder."
+            a.informativeText = "Right-click inside any Finder folder to use New File…, Open Terminal Here, Open Folder With, Copy Path and Go to Parent Folder."
             a.runModal()
             NSApp.terminate(nil)
         }
@@ -63,10 +67,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func openTerminal(at dir: String) {
         let ws = NSWorkspace.shared
-        guard let app = ws.urlForApplication(withBundleIdentifier: "com.googlecode.iterm2")
-                ?? ws.urlForApplication(withBundleIdentifier: "com.apple.Terminal") else { NSApp.terminate(nil); return }
-        ws.open([URL(fileURLWithPath: dir, isDirectory: true)], withApplicationAt: app,
-                configuration: NSWorkspace.OpenConfiguration()) { _, _ in
+        open(dir, withAppAt: ws.urlForApplication(withBundleIdentifier: "com.googlecode.iterm2")
+                ?? ws.urlForApplication(withBundleIdentifier: "com.apple.Terminal"))
+    }
+
+    // No app ID means "Other App…": let the user pick any app.
+    private func openFolder(_ dir: String, appID: String?) {
+        if let appID {
+            open(dir, withAppAt: NSWorkspace.shared.urlForApplication(withBundleIdentifier: appID))
+            return
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        let panel = NSOpenPanel()
+        panel.message = "Open “\((dir as NSString).lastPathComponent)” with:"
+        panel.prompt = "Open"
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        panel.allowedContentTypes = [.application]
+        open(dir, withAppAt: panel.runModal() == .OK ? panel.url : nil)
+    }
+
+    private func open(_ dir: String, withAppAt app: URL?) {
+        guard let app else { NSApp.terminate(nil); return }
+        NSWorkspace.shared.open([URL(fileURLWithPath: dir, isDirectory: true)], withApplicationAt: app,
+                                configuration: NSWorkspace.OpenConfiguration()) { _, _ in
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
     }
