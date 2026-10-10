@@ -54,12 +54,16 @@ The first time you use **Go to Parent Folder**, macOS asks whether Finder Menu c
 
 ## Settings
 
+<img src="docs/settings.png" width="300" align="right" alt="Finder Menu settings window: a checkbox for each right-click menu item and a picker for the terminal Open Terminal Here uses">
+
 Open **Finder Menu** from Spotlight or your Applications folder, or run `finder-menu settings`. The settings window lets you:
 
 - choose which items appear in the right-click menu
 - pick the terminal for **Open Terminal Here**. Automatic uses the first one installed, in this order: iTerm2, Ghostty, Warp, WezTerm, kitty, Alacritty, Terminal. **Other App…** lets you pick any app.
 
 Changes apply the next time you right-click. You can also set the terminal from the command line: `finder-menu terminal Ghostty` (any app name works), `finder-menu terminal` to see the current choice, and `finder-menu terminal auto` to go back to automatic. If you installed from source, run `scripts/finder-menu` from the repo folder instead.
+
+<br clear="right">
 
 ## Uninstall
 
