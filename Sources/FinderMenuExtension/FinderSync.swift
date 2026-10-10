@@ -18,7 +18,7 @@ class FinderMenuSync: FIFinderSync {
             .image = Self.symbol("terminal")
         let openWith = menu.addItem(withTitle: "Open Folder With", action: nil, keyEquivalent: "")
         openWith.image = Self.symbol("arrow.up.forward.app")
-        openWith.submenu = openWithMenu()
+        openWith.submenu = Self.openWithMenu()
         menu.addItem(withTitle: "Copy Path", action: #selector(copyPath(_:)), keyEquivalent: "")
             .image = Self.symbol("doc.on.doc")
         if let dir = currentFolder, dir.path != "/" {
@@ -36,37 +36,44 @@ class FinderMenuSync: FIFinderSync {
         appearance.performAsCurrentDrawingAppearance {
             color = NSColor.labelColor.usingColorSpace(.sRGB) ?? .black
         }
-        let scale = 2.0
-        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
-                                         pixelsWide: Int(base.size.width * scale), pixelsHigh: Int(base.size.height * scale),
-                                         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
-                                         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
-        rep.size = base.size
-        NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-        let rect = NSRect(origin: .zero, size: base.size)
-        base.draw(in: rect)
-        color.set()
-        rect.fill(using: .sourceAtop)
-        NSGraphicsContext.restoreGraphicsState()
-        let image = NSImage(size: base.size)
-        image.addRepresentation(rep)
-        return image
+        return flatten(base, size: base.size, tint: color)
     }
 
-    private func openWithMenu() -> NSMenu {
+    // Finder receives a copy of the whole menu on every right-click, images included. An app icon
+    // carries every size up to 1024px, so a few of them made that copy hundreds of MB and the menu
+    // slow to open. Draw each image once, at menu size, into a single small bitmap.
+    static func flatten(_ image: NSImage, size: NSSize, tint: NSColor? = nil) -> NSImage? {
+        let scale = 2.0
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                         pixelsWide: Int(size.width * scale), pixelsHigh: Int(size.height * scale),
+                                         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
+        rep.size = size
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        let rect = NSRect(origin: .zero, size: size)
+        image.draw(in: rect)
+        if let tint {
+            tint.set()
+            rect.fill(using: .sourceAtop)
+        }
+        NSGraphicsContext.restoreGraphicsState()
+        let flat = NSImage(size: size)
+        flat.addRepresentation(rep)
+        return flat
+    }
+
+    static func openWithMenu() -> NSMenu {
         let sub = NSMenu(title: "")
         for (i, editor) in editors.enumerated() {
             guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: editor.id) else { continue }
-            let item = sub.addItem(withTitle: editor.name, action: #selector(openWith(_:)), keyEquivalent: "")
+            let item = sub.addItem(withTitle: editor.name, action: #selector(FinderMenuSync.openWith(_:)), keyEquivalent: "")
             item.tag = i // Finder copies the menu, so the tag is how the action knows which app was picked.
-            let icon = NSWorkspace.shared.icon(forFile: appURL.path)
-            icon.size = NSSize(width: 16, height: 16)
-            item.image = icon
+            item.image = flatten(NSWorkspace.shared.icon(forFile: appURL.path), size: NSSize(width: 16, height: 16))
         }
         if !sub.items.isEmpty { sub.addItem(.separator()) }
-        sub.addItem(withTitle: "Other App…", action: #selector(openWithOther(_:)), keyEquivalent: "")
-            .image = Self.symbol("ellipsis.circle")
+        sub.addItem(withTitle: "Other App…", action: #selector(FinderMenuSync.openWithOther(_:)), keyEquivalent: "")
+            .image = symbol("ellipsis.circle")
         return sub
     }
 
