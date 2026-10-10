@@ -80,10 +80,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let error { NSLog("Finder Menu go-up failed: \(error)") }
     }
 
+    // Uses the terminal picked with `finder-menu terminal <app>`, otherwise the first installed one in `terminals`.
     private func openTerminal(at dir: String) {
         let ws = NSWorkspace.shared
-        open(dir, withAppAt: ws.urlForApplication(withBundleIdentifier: "com.googlecode.iterm2")
-                ?? ws.urlForApplication(withBundleIdentifier: "com.apple.Terminal"))
+        let chosen = UserDefaults.standard.string(forKey: "Terminal")
+        for id in [chosen].compactMap({ $0 }) + terminals.map(\.id) {
+            guard let app = ws.urlForApplication(withBundleIdentifier: id) else { continue }
+            let quit: (NSRunningApplication?, Error?) -> Void = { _, _ in DispatchQueue.main.async { NSApp.terminate(nil) } }
+            switch terminals.first(where: { $0.id == id })?.launch ?? .openFolder {
+            case .openFolder:
+                open(dir, withAppAt: app)
+            case .link(let makeURL):
+                guard let url = makeURL(dir) else { NSApp.terminate(nil); return }
+                ws.open(url, configuration: NSWorkspace.OpenConfiguration(), completionHandler: quit)
+            case .arguments(let makeArguments):
+                let config = NSWorkspace.OpenConfiguration()
+                config.arguments = makeArguments(dir)
+                config.createsNewApplicationInstance = true
+                ws.openApplication(at: app, configuration: config, completionHandler: quit)
+            }
+            return
+        }
+        NSApp.terminate(nil)
     }
 
     // No app ID means "Other App…": let the user pick any app.

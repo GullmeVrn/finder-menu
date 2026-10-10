@@ -2,6 +2,7 @@
 # finder-menu enable [app]   Copies Finder Menu.app into ~/Applications and turns on its Finder extension.
 #                            Without [app], uses the copy Homebrew built next to this script.
 # finder-menu disable        Turns the extension off and removes the app from ~/Applications.
+# finder-menu terminal [app] Shows or sets the terminal for Open Terminal Here ("auto" to reset).
 set -euo pipefail
 
 EXT_ID="local.findermenu.extension"
@@ -46,8 +47,38 @@ disable() {
   echo "Finder Menu is off and removed from $DEST."
 }
 
+terminal() {
+  local name="${1:-}" id
+  case "$name" in
+    "")
+      if id=$(defaults read local.findermenu Terminal 2>/dev/null); then
+        local app; app=$(mdfind "kMDItemCFBundleIdentifier == '$id'" 2>/dev/null | head -1)
+        echo "Open Terminal Here uses: ${app:+$(basename "$app" .app) }($id)"
+      else
+        echo "Open Terminal Here picks automatically: the first installed of iTerm2, Ghostty, Warp,"
+        echo "WezTerm, kitty and Alacritty, otherwise Terminal."
+      fi
+      echo "Change it with: finder-menu terminal <app name>, or go back with: finder-menu terminal auto"
+      ;;
+    auto)
+      defaults delete local.findermenu Terminal 2>/dev/null || true
+      echo "Open Terminal Here will pick a terminal automatically."
+      ;;
+    *)
+      local quoted="${name//\\/\\\\}"; quoted="${quoted//\"/\\\"}"
+      if ! id=$(osascript -e "id of app \"$quoted\"" 2>/dev/null); then
+        echo "Can't find an app named \"$name\"." >&2
+        exit 1
+      fi
+      defaults write local.findermenu Terminal -string "$id"
+      echo "Open Terminal Here will now use $name ($id)."
+      ;;
+  esac
+}
+
 case "${1:-}" in
   enable) shift; enable "$@" ;;
   disable) disable ;;
-  *) echo "usage: finder-menu enable | disable" >&2; exit 1 ;;
+  terminal) shift; terminal "$@" ;;
+  *) echo "usage: finder-menu enable | disable | terminal [app]" >&2; exit 1 ;;
 esac
