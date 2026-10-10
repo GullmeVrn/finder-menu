@@ -16,7 +16,14 @@ Especially anything that lets another app or a website make Finder Menu do somet
 
 ## Supported versions
 
-Only the latest version on `main` gets fixes. To update:
+Only the latest version on `main` gets fixes. To update with Homebrew:
+
+```bash
+brew update && brew upgrade finder-menu
+finder-menu enable
+```
+
+Or from source:
 
 ```bash
 git pull && ./install.sh

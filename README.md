@@ -31,7 +31,14 @@ brew install nikgrbn/tap/finder-menu
 finder-menu enable
 ```
 
-Run `finder-menu enable` again after `brew upgrade finder-menu`.
+To update later:
+
+```bash
+brew update && brew upgrade finder-menu
+finder-menu enable
+```
+
+Don't skip `brew update`: on its own, `brew upgrade` checks for new versions only once a day.
 
 **Or from source:**
 
