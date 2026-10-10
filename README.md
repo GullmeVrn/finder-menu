@@ -10,11 +10,11 @@ Right-click **empty space** in any folder, with nothing selected:
 
 | Menu item | What it does |
 |---|---|
-| **New File…** | Asks for a name with any extension (`notes.md`, `main.py`, `.env`), creates it in the current folder and selects it. Never overwrites. |
-| **Open Terminal Here** | Opens iTerm2 (or Terminal, if iTerm2 isn't installed) in the current folder. |
-| **Open Folder With ▸** | Opens the current folder in an IDE or editor. Lists the ones you have installed (VS Code, Cursor, Windsurf, Zed, Sublime Text, JetBrains IDEs, Android Studio, Xcode…), plus **Other App…** to pick any app. |
-| **Copy Path** | Copies the current folder's full path. |
-| **Go to Parent Folder** | Moves the window up one level, even when Finder's Back button is greyed out (e.g. a window opened with `open .`). |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/new-file-dark.png"><img src="docs/icons/new-file.png" width="18" height="18" align="middle" alt=""></picture> **New File…** | Asks for a name with any extension (`notes.md`, `main.py`, `.env`), creates it in the current folder and selects it. Never overwrites. |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/terminal-dark.png"><img src="docs/icons/terminal.png" width="18" height="18" align="middle" alt=""></picture> **Open Terminal Here** | Opens iTerm2 (or Terminal, if iTerm2 isn't installed) in the current folder. |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/open-with-dark.png"><img src="docs/icons/open-with.png" width="18" height="18" align="middle" alt=""></picture> **Open Folder With ▸** | Opens the current folder in an IDE or editor. Lists the ones you have installed (VS Code, Cursor, Windsurf, Zed, Sublime Text, JetBrains IDEs, Android Studio, Xcode…), plus **Other App…** to pick any app. |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/copy-path-dark.png"><img src="docs/icons/copy-path.png" width="18" height="18" align="middle" alt=""></picture> **Copy Path** | Copies the current folder's full path. |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/parent-folder-dark.png"><img src="docs/icons/parent-folder.png" width="18" height="18" align="middle" alt=""></picture> **Go to Parent Folder** | Moves the window up one level, even when Finder's Back button is greyed out (e.g. a window opened with `open .`). |
 
 Right-clicking a file or folder works too: **Copy Path** copies the selected items' paths, and **Open Terminal Here** and **Open Folder With** use the selected folder.
 
