@@ -98,20 +98,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var name = "untitled.txt"
         var problem: String?
         while true {
-            NSApp.activate(ignoringOtherApps: true)
-            let alert = NSAlert()
-            alert.messageText = "New File"
-            alert.informativeText = (problem.map { $0 + "\n\n" } ?? "") + "In: " + (dir as NSString).abbreviatingWithTildeInPath
-            alert.addButton(withTitle: "Create")
-            alert.addButton(withTitle: "Cancel")
-            let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
-            field.stringValue = name
-            field.placeholderString = "name.ext"
-            alert.accessoryView = field
-            alert.window.initialFirstResponder = field
-            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            let info = (problem.map { $0 + "\n\n" } ?? "") + "In: " + (dir as NSString).abbreviatingWithTildeInPath
+            guard let entered = askFileName(info: info, suggested: name) else { return }
 
-            name = field.stringValue.trimmingCharacters(in: .whitespaces)
+            name = entered.trimmingCharacters(in: .whitespaces)
             let full = (dir as NSString).appendingPathComponent(name)
             if name.isEmpty || name.contains("/") || name == "." || name == ".." {
                 problem = "⚠️ That isn't a valid file name."
@@ -124,6 +114,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 return
             }
         }
+    }
+
+    private func askFileName(info: String, suggested: String) -> String? {
+        NSApp.activate(ignoringOtherApps: true)
+        let alert = NSAlert()
+        alert.messageText = "New File"
+        alert.informativeText = info
+        alert.addButton(withTitle: "Create")
+        alert.addButton(withTitle: "Cancel")
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
+        field.stringValue = suggested
+        field.placeholderString = "name.ext"
+        alert.accessoryView = field
+        alert.window.initialFirstResponder = field
+        return alert.runModal() == .alertFirstButtonReturn ? field.stringValue : nil
     }
 }
 

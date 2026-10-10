@@ -1,6 +1,10 @@
-# Finder Menu
+<p align="center">
+  <img src="docs/icon.png" width="128" height="128" alt="Finder Menu icon">
+</p>
 
-Adds the right-click options that macOS Finder is missing.
+<h1 align="center">Finder Menu</h1>
+
+<p align="center">Adds the right-click options that macOS Finder is missing.</p>
 
 <p align="center">
   <img src="docs/menu.png" width="552" alt="Finder right-click menu with New File, Open Terminal Here, Open Folder With (VS Code, Sublime Text, IntelliJ IDEA, PyCharm, Xcode…), Copy Path and Go to Parent Folder">
@@ -49,6 +53,7 @@ The first time you use **Go to Parent Folder**, macOS asks whether Finder Menu c
 
 - `Sources/FinderMenuExtension` is a [Finder Sync extension](https://developer.apple.com/documentation/findersync) that adds the menu items to every folder. Finder extensions must run sandboxed, so this part only reads the clicked folder and copies paths.
 - `Sources/FinderMenu` is a small helper app that isn't sandboxed and has no Dock icon. The extension hands it actions through a `findermenu://` URL. It creates the files, opens the terminal and moves the Finder window, then quits.
+- `scripts/make-icon.swift` draws the app icon in code and regenerates `Resources/AppIcon.icns` and `docs/icon.png`.
 
 ## License
 

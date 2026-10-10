@@ -6,6 +6,8 @@
 	<string>Finder Menu</string>
 	<key>CFBundleExecutable</key>
 	<string>FinderMenu</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>local.findermenu</string>
 	<key>CFBundleInfoDictionaryVersion</key>

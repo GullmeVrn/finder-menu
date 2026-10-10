@@ -17,8 +17,9 @@ APP="$WORK/$APP_NAME.app"
 EXT="$APP/Contents/PlugIns/FinderMenuExtension.appex"
 
 echo "Building..."
-mkdir -p "$APP/Contents/MacOS" "$EXT/Contents/MacOS"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$EXT/Contents/MacOS"
 cp Resources/App-Info.plist "$APP/Contents/Info.plist"
+cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cp Resources/Extension-Info.plist "$EXT/Contents/Info.plist"
 
 xcrun swiftc -swift-version 5 -O -sdk "$SDK" -target "$TARGET" \
