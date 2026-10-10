@@ -40,17 +40,37 @@ Found a security problem? See [SECURITY.md](SECURITY.md).
 
 ## Install
 
+**With Homebrew:**
+
+```bash
+brew install nikgrbn/tap/finder-menu
+finder-menu enable
+```
+
+Run `finder-menu enable` again after `brew upgrade finder-menu`.
+
+**Or from source:**
+
 ```bash
 git clone https://github.com/nikgrbn/finder-menu.git
 cd finder-menu
 ./install.sh
 ```
 
-The script builds the app on your machine, installs it to `~/Applications/Finder Menu.app` and enables the Finder extension. There's nothing to launch: Finder loads the extension by itself, including after a restart.
+Either way, the app is built on your machine, installed to `~/Applications/Finder Menu.app` and the Finder extension is turned on. There's nothing to launch: Finder loads the extension by itself, including after a restart.
 
 The first time you use **Go to Parent Folder**, macOS asks whether Finder Menu can control Finder. Click **OK**, because that's how it moves the window.
 
 ## Uninstall
+
+With Homebrew:
+
+```bash
+finder-menu disable
+brew uninstall finder-menu
+```
+
+From source:
 
 ```bash
 ./uninstall.sh
