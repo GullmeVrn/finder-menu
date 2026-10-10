@@ -1,4 +1,6 @@
 import Cocoa
+import os
+import Security
 import UniformTypeIdentifiers
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -6,6 +8,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func application(_ application: NSApplication, open urls: [URL]) {
         handledURL = true
+        guard sentByOurExtension() else {
+            // Logger rather than NSLog, which macOS logs as <private>. The links stay redacted.
+            Logger(subsystem: "local.findermenu", category: "links")
+                .notice("Ignored a findermenu:// link that didn't come from the Finder extension: \(urls.map(\.absoluteString))")
+            NSApp.terminate(nil)
+            return
+        }
         for url in urls {
             guard let c = URLComponents(url: url, resolvingAgainstBaseURL: false),
                   let path = c.queryItems?.first(where: { $0.name == "path" })?.value,
@@ -38,8 +47,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // Any app can send a findermenu:// link (and so can a website, once the browser asks), so only
-    // act on existing absolute paths. Files and packages such as .app bundles resolve to the
+    // Any app can send a findermenu:// link, and so can a website once the browser asks. Opening a
+    // folder they pick in a terminal or IDE can run code from it (a git-aware prompt, an IDE's
+    // folder-open tasks), so only accept links sent by the extension bundled with this app, matched
+    // by code signature hash. Fails closed if the sender can't be identified (e.g. it has quit).
+    private func sentByOurExtension() -> Bool {
+        guard let token = NSAppleEventManager.shared().currentAppleEvent?
+                  .attributeDescriptor(forKeyword: AEKeyword(keySenderAuditTokenAttr))?.data,
+              let ext = Bundle.main.builtInPlugInsURL?.appendingPathComponent("FinderMenuExtension.appex")
+        else { return false }
+        var sender: SecCode?, bundled: SecStaticCode?, info: CFDictionary?, requirement: SecRequirement?
+        guard SecCodeCopyGuestWithAttributes(nil, [kSecGuestAttributeAudit: token] as CFDictionary, [], &sender) == errSecSuccess,
+              let sender,
+              SecStaticCodeCreateWithPath(ext as CFURL, [], &bundled) == errSecSuccess,
+              let bundled,
+              SecCodeCopySigningInformation(bundled, [], &info) == errSecSuccess,
+              let cdhash = (info as? [String: Any])?[kSecCodeInfoUnique as String] as? Data,
+              SecRequirementCreateWithString("cdhash H\"\(cdhash.map { String(format: "%02x", $0) }.joined())\"" as CFString,
+                                             [], &requirement) == errSecSuccess
+        else { return false }
+        return SecCodeCheckValidity(sender, [], requirement) == errSecSuccess
+    }
+
+    // Only act on existing absolute paths. Files and packages such as .app bundles resolve to the
     // folder that contains them.
     private func folder(for path: String) -> String? {
         guard path.hasPrefix("/") else { return nil }
