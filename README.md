@@ -1,6 +1,12 @@
 # Finder Menu
 
-Adds the right-click options that macOS Finder is missing. Right-click **empty space** in any folder, with nothing selected:
+Adds the right-click options that macOS Finder is missing.
+
+<p align="center">
+  <img src="docs/menu.png" width="537" alt="Finder right-click menu with New File, Open Terminal Here, Open Folder With (VS Code, Sublime Text, IntelliJ IDEA, PyCharm, Xcode…), Copy Path and Go to Parent Folder">
+</p>
+
+Right-click **empty space** in any folder, with nothing selected:
 
 | Menu item | What it does |
 |---|---|
