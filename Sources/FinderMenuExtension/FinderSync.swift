@@ -3,35 +3,6 @@ import FinderSync
 
 @objc(FinderMenuSync)
 class FinderMenuSync: FIFinderSync {
-    // Offered under "Open Folder With", in this order; only installed apps are shown.
-    private static let editors: [(id: String, name: String)] = [
-        ("com.microsoft.VSCode", "Visual Studio Code"),
-        ("com.microsoft.VSCodeInsiders", "VS Code Insiders"),
-        ("com.todesktop.230313mzl4w4u92", "Cursor"),
-        ("com.exafunction.windsurf", "Windsurf"),
-        ("com.google.antigravity", "Antigravity"),
-        ("dev.zed.Zed", "Zed"),
-        ("com.sublimetext.4", "Sublime Text"),
-        ("com.sublimetext.3", "Sublime Text 3"),
-        ("com.jetbrains.intellij", "IntelliJ IDEA"),
-        ("com.jetbrains.intellij.ce", "IntelliJ IDEA CE"),
-        ("com.jetbrains.pycharm", "PyCharm"),
-        ("com.jetbrains.pycharm.ce", "PyCharm CE"),
-        ("com.jetbrains.WebStorm", "WebStorm"),
-        ("com.jetbrains.goland", "GoLand"),
-        ("com.jetbrains.rider", "Rider"),
-        ("com.jetbrains.CLion", "CLion"),
-        ("com.jetbrains.rustrover", "RustRover"),
-        ("com.jetbrains.PhpStorm", "PhpStorm"),
-        ("com.jetbrains.rubymine", "RubyMine"),
-        ("com.jetbrains.datagrip", "DataGrip"),
-        ("com.jetbrains.fleet", "Fleet"),
-        ("com.google.android.studio", "Android Studio"),
-        ("com.apple.dt.Xcode", "Xcode"),
-        ("com.panic.Nova", "Nova"),
-        ("com.barebones.bbedit", "BBEdit"),
-    ]
-
     override init() {
         super.init()
         // Show the menu in every folder on the Mac.
@@ -85,7 +56,7 @@ class FinderMenuSync: FIFinderSync {
 
     private func openWithMenu() -> NSMenu {
         let sub = NSMenu(title: "")
-        for (i, editor) in Self.editors.enumerated() {
+        for (i, editor) in editors.enumerated() {
             guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: editor.id) else { continue }
             let item = sub.addItem(withTitle: editor.name, action: #selector(openWith(_:)), keyEquivalent: "")
             item.tag = i // Finder copies the menu, so the tag is how the action knows which app was picked.
@@ -110,9 +81,9 @@ class FinderMenuSync: FIFinderSync {
     private var clickedTarget: URL? { selection.count == 1 ? selection[0] : currentFolder }
 
     @objc func openWith(_ sender: AnyObject?) {
-        guard let tag = (sender as? NSMenuItem)?.tag, Self.editors.indices.contains(tag),
+        guard let tag = (sender as? NSMenuItem)?.tag, editors.indices.contains(tag),
               let target = clickedTarget else { return }
-        callHelper("openwith", target.path, app: Self.editors[tag].id)
+        callHelper("openwith", target.path, app: editors[tag].id)
     }
 
     @objc func openWithOther(_ sender: AnyObject?) {

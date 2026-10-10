@@ -8,14 +8,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         handledURL = true
         for url in urls {
             guard let c = URLComponents(url: url, resolvingAgainstBaseURL: false),
-                  let path = c.queryItems?.first(where: { $0.name == "path" })?.value else { continue }
+                  let path = c.queryItems?.first(where: { $0.name == "path" })?.value,
+                  let dir = folder(for: path) else { continue }
             switch c.host {
-            case "newfile": newFile(in: folder(for: path))
-            case "terminal": openTerminal(at: folder(for: path)); return
+            case "newfile": newFile(in: dir)
+            case "terminal": openTerminal(at: dir); return
             case "openwith":
-                openFolder(folder(for: path), appID: c.queryItems?.first(where: { $0.name == "app" })?.value)
+                let appID = c.queryItems?.first(where: { $0.name == "app" })?.value
+                // No app means "Other App…", where the user picks one themselves.
+                if let appID, !editors.contains(where: { $0.id == appID }) { continue }
+                openFolder(dir, appID: appID)
                 return
-            case "up": goUp(from: path)
+            case "up": goUp(from: dir)
             default: break
             }
         }
@@ -34,10 +38,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func folder(for path: String) -> String {
+    // Any app can send a findermenu:// link (and so can a website, once the browser asks), so only
+    // act on existing absolute paths. Files and packages such as .app bundles resolve to the
+    // folder that contains them.
+    private func folder(for path: String) -> String? {
+        guard path.hasPrefix("/") else { return nil }
+        let path = (path as NSString).standardizingPath
         var isDir: ObjCBool = false
-        FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
-        return isDir.boolValue ? path : (path as NSString).deletingLastPathComponent
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return nil }
+        let dir = isDir.boolValue && !isPackage(path) ? path : (path as NSString).deletingLastPathComponent
+        return isPackage(dir) ? nil : dir
+    }
+
+    // Checks the real location, so a symlink to an .app counts as a package too.
+    private func isPackage(_ path: String) -> Bool {
+        NSWorkspace.shared.isFilePackage(atPath: (path as NSString).resolvingSymlinksInPath)
     }
 
     // Moves the Finder window showing `dir` (front-most match, else the front window) up one level.

@@ -25,10 +25,10 @@ cp Resources/Extension-Info.plist "$EXT/Contents/Info.plist"
 xcrun swiftc -swift-version 5 -O -sdk "$SDK" -target "$TARGET" \
   -module-name FinderMenuExtension -parse-as-library -application-extension \
   -framework Cocoa -framework FinderSync -Xlinker -e -Xlinker _NSExtensionMain \
-  Sources/FinderMenuExtension/*.swift -o "$EXT/Contents/MacOS/FinderMenuExtension"
+  Sources/FinderMenuExtension/*.swift Sources/Shared/*.swift -o "$EXT/Contents/MacOS/FinderMenuExtension"
 xcrun swiftc -swift-version 5 -O -sdk "$SDK" -target "$TARGET" \
   -module-name FinderMenu -framework Cocoa \
-  Sources/FinderMenu/*.swift -o "$APP/Contents/MacOS/FinderMenu"
+  Sources/FinderMenu/*.swift Sources/Shared/*.swift -o "$APP/Contents/MacOS/FinderMenu"
 
 # Ad-hoc signature ("Sign to Run Locally"). Finder extensions must be sandboxed.
 codesign --force -s - --entitlements Resources/Extension.entitlements "$EXT"
