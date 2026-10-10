@@ -57,8 +57,30 @@ class FinderMenuSync: FIFinderSync {
         return menu
     }
 
-    private static func symbol(_ name: String) -> NSImage? {
-        NSImage(systemSymbolName: name, accessibilityDescription: nil)
+    // Finder drops the template flag when it copies the menu, so SF Symbols would always render
+    // black. Instead, bake the current appearance's text color into a plain bitmap each time.
+    static func symbol(_ name: String, appearance: NSAppearance = NSApplication.shared.effectiveAppearance) -> NSImage? {
+        guard let base = NSImage(systemSymbolName: name, accessibilityDescription: nil) else { return nil }
+        var color = NSColor.black
+        appearance.performAsCurrentDrawingAppearance {
+            color = NSColor.labelColor.usingColorSpace(.sRGB) ?? .black
+        }
+        let scale = 2.0
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                         pixelsWide: Int(base.size.width * scale), pixelsHigh: Int(base.size.height * scale),
+                                         bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                         colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
+        rep.size = base.size
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        let rect = NSRect(origin: .zero, size: base.size)
+        base.draw(in: rect)
+        color.set()
+        rect.fill(using: .sourceAtop)
+        NSGraphicsContext.restoreGraphicsState()
+        let image = NSImage(size: base.size)
+        image.addRepresentation(rep)
+        return image
     }
 
     private func openWithMenu() -> NSMenu {
