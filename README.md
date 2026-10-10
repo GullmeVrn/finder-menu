@@ -4,7 +4,7 @@
 
 <h1 align="center">Finder Menu</h1>
 
-<p align="center">Adds the right-click options that macOS Finder is missing.</p>
+<p align="center">Tiny add-on that adds the right-click options that macOS Finder is missing.</p>
 
 <p align="center">
   <img src="docs/menu.png" width="552" alt="Finder right-click menu with New File, Open Terminal Here, Open Folder With (VS Code, Sublime Text, IntelliJ IDEA, PyCharm, Xcode…), Copy Path and Go to Parent Folder">
