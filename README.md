@@ -8,7 +8,7 @@ Adds the right-click options that macOS Finder is missing.
 
 Right-click **empty space** in any folder, with nothing selected:
 
-| | Menu item | What it does |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Menu item | What it does |
 |:-:|---|---|
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/new-file-dark.png"><img src="docs/icons/new-file.png" width="20" height="20" alt=""></picture> | **New&nbsp;File…** | Asks for a name with any extension (`notes.md`, `main.py`, `.env`), creates it in the current folder and selects it. Never overwrites. |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/terminal-dark.png"><img src="docs/icons/terminal.png" width="20" height="20" alt=""></picture> | **Open&nbsp;Terminal&nbsp;Here** | Opens iTerm2 (or Terminal, if iTerm2 isn't installed) in the current folder. |
