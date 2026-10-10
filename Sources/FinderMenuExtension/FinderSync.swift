@@ -42,13 +42,23 @@ class FinderMenuSync: FIFinderSync {
         guard menuKind == .contextualMenuForContainer || menuKind == .contextualMenuForItems else { return nil }
         let menu = NSMenu(title: "")
         menu.addItem(withTitle: "New File…", action: #selector(newFile(_:)), keyEquivalent: "")
+            .image = Self.symbol("doc.badge.plus")
         menu.addItem(withTitle: "Open Terminal Here", action: #selector(openTerminal(_:)), keyEquivalent: "")
-        menu.addItem(withTitle: "Open Folder With", action: nil, keyEquivalent: "").submenu = openWithMenu()
+            .image = Self.symbol("terminal")
+        let openWith = menu.addItem(withTitle: "Open Folder With", action: nil, keyEquivalent: "")
+        openWith.image = Self.symbol("arrow.up.forward.app")
+        openWith.submenu = openWithMenu()
         menu.addItem(withTitle: "Copy Path", action: #selector(copyPath(_:)), keyEquivalent: "")
+            .image = Self.symbol("doc.on.doc")
         if let dir = currentFolder, dir.path != "/" {
             menu.addItem(withTitle: "Go to Parent Folder", action: #selector(goUp(_:)), keyEquivalent: "")
+                .image = Self.symbol("arrow.turn.left.up")
         }
         return menu
+    }
+
+    private static func symbol(_ name: String) -> NSImage? {
+        NSImage(systemSymbolName: name, accessibilityDescription: nil)
     }
 
     private func openWithMenu() -> NSMenu {
@@ -63,6 +73,7 @@ class FinderMenuSync: FIFinderSync {
         }
         if !sub.items.isEmpty { sub.addItem(.separator()) }
         sub.addItem(withTitle: "Other App…", action: #selector(openWithOther(_:)), keyEquivalent: "")
+            .image = Self.symbol("ellipsis.circle")
         return sub
     }
 
