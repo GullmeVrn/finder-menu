@@ -1,0 +1,53 @@
+#!/bin/bash
+# finder-menu enable [app]   Copies Finder Menu.app into ~/Applications and turns on its Finder extension.
+#                            Without [app], uses the copy Homebrew built next to this script.
+# finder-menu disable        Turns the extension off and removes the app from ~/Applications.
+set -euo pipefail
+
+EXT_ID="local.findermenu.extension"
+DEST="${DEST:-$HOME/Applications}"
+INSTALLED="$DEST/Finder Menu.app"
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+
+enable() {
+  local app="${1:-$(cd "$(dirname "$(realpath "$0")")/.." && pwd)/Finder Menu.app}"
+  if [ ! -d "$app" ]; then
+    echo "Can't find $app" >&2
+    exit 1
+  fi
+  pkill -f FinderMenuExtension.appex 2>/dev/null || true
+  mkdir -p "$DEST"
+  rm -rf "$INSTALLED"
+  cp -R "$app" "$DEST/"
+  "$LSREGISTER" -f "$INSTALLED"
+  # Registration can silently lose a race with a just-removed copy, so confirm it and retry.
+  for _ in 1 2 3 4 5; do
+    pluginkit -a "$INSTALLED/Contents/PlugIns/FinderMenuExtension.appex"
+    pluginkit -e use -i "$EXT_ID"
+    sleep 1
+    if pluginkit -m -i "$EXT_ID" | grep -q "^+.*$EXT_ID"; then
+      echo "Finder Menu is on. Right-click inside any Finder folder."
+      return
+    fi
+  done
+  echo "Installed, but macOS didn't enable the Finder extension. Turn on \"Finder Menu\" in" >&2
+  echo "System Settings → General → Login Items & Extensions, or run: finder-menu enable" >&2
+  exit 1
+}
+
+disable() {
+  pluginkit -e ignore -i "$EXT_ID" 2>/dev/null || true
+  pluginkit -r "$INSTALLED/Contents/PlugIns/FinderMenuExtension.appex" 2>/dev/null || true
+  pkill -f FinderMenuExtension.appex 2>/dev/null || true
+  if [ -d "$INSTALLED" ]; then
+    "$LSREGISTER" -u "$INSTALLED"
+    rm -rf "$INSTALLED"
+  fi
+  echo "Finder Menu is off and removed from $DEST."
+}
+
+case "${1:-}" in
+  enable) shift; enable "$@" ;;
+  disable) disable ;;
+  *) echo "usage: finder-menu enable | disable" >&2; exit 1 ;;
+esac
