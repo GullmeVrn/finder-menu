@@ -26,8 +26,6 @@ To add an editor to the list, add its bundle ID to `editors` in `Sources/FinderM
 
 ## Install
 
-Requires macOS 13+ and Xcode or the Command Line Tools (`xcode-select --install`).
-
 ```bash
 git clone https://github.com/nikgrbn/finder-menu.git
 cd finder-menu
