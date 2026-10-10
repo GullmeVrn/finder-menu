@@ -2,4 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 	<key>com.apple.security.app-sandbox</key><true/>
+	<!-- Read-only access to Finder Menu's own settings, so hidden items stay hidden. -->
+	<key>com.apple.security.temporary-exception.shared-preference.read-only</key>
+	<array><string>local.findermenu</string></array>
 </dict></plist>

@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var handledURL = false
+    private var settingsWindow: SettingsWindowController?
 
     func application(_ application: NSApplication, open urls: [URL]) {
         handledURL = true
@@ -12,7 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // Logger rather than NSLog, which macOS logs as <private>. The links stay redacted.
             Logger(subsystem: "local.findermenu", category: "links")
                 .notice("Ignored a findermenu:// link that didn't come from the Finder extension: \(urls.map(\.absoluteString))")
-            NSApp.terminate(nil)
+            finish()
             return
         }
         for url in urls {
@@ -32,19 +33,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             default: break
             }
         }
-        NSApp.terminate(nil)
+        finish()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Launched by a menu item, a findermenu:// link arrives right away; otherwise the user opened the app.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard !self.handledURL else { return }
-            NSApp.activate(ignoringOtherApps: true)
-            let a = NSAlert()
-            a.messageText = "Finder Menu is installed"
-            a.informativeText = "Right-click inside any Finder folder to use New File…, Open Terminal Here, Open Folder With, Copy Path and Go to Parent Folder."
-            a.runModal()
-            NSApp.terminate(nil)
+            if !self.handledURL { self.showSettings() }
         }
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showSettings()
+        return false
+    }
+
+    // Opened directly, the helper behaves like a regular app (Dock icon, ⌘W, ⌘Q) and quits with its window.
+    private func showSettings() {
+        if settingsWindow == nil {
+            NSApp.setActivationPolicy(.regular)
+            NSApp.mainMenu = makeMainMenu()
+            let controller = SettingsWindowController()
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: controller.window,
+                                                   queue: .main) { _ in NSApp.terminate(nil) }
+            settingsWindow = controller
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        settingsWindow?.window?.makeKeyAndOrderFront(nil)
+    }
+
+    private func makeMainMenu() -> NSMenu {
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "Quit Finder Menu", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        let main = NSMenu()
+        for submenu in [appMenu, windowMenu] {
+            let item = NSMenuItem()
+            item.submenu = submenu
+            main.addItem(item)
+        }
+        return main
+    }
+
+    // A menu action is done. Quit, unless the settings window is open.
+    private func finish() {
+        if settingsWindow == nil { NSApp.terminate(nil) }
     }
 
     // Any app can send a findermenu:// link, and so can a website once the browser asks. Opening a
@@ -110,18 +144,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let error { NSLog("Finder Menu go-up failed: \(error)") }
     }
 
-    // Uses the terminal picked with `finder-menu terminal <app>`, otherwise the first installed one in `terminals`.
+    // Uses the terminal picked in settings (or with `finder-menu terminal <app>`), otherwise the first installed one.
     private func openTerminal(at dir: String) {
         let ws = NSWorkspace.shared
-        let chosen = UserDefaults.standard.string(forKey: "Terminal")
-        for id in [chosen].compactMap({ $0 }) + terminals.map(\.id) {
+        for id in [chosenTerminal].compactMap({ $0 }) + terminals.map(\.id) {
             guard let app = ws.urlForApplication(withBundleIdentifier: id) else { continue }
-            let quit: (NSRunningApplication?, Error?) -> Void = { _, _ in DispatchQueue.main.async { NSApp.terminate(nil) } }
+            let quit: (NSRunningApplication?, Error?) -> Void = { _, _ in DispatchQueue.main.async { self.finish() } }
             switch terminals.first(where: { $0.id == id })?.launch ?? .openFolder {
             case .openFolder:
                 open(dir, withAppAt: app)
             case .link(let makeURL):
-                guard let url = makeURL(dir) else { NSApp.terminate(nil); return }
+                guard let url = makeURL(dir) else { finish(); return }
                 ws.open(url, configuration: NSWorkspace.OpenConfiguration(), completionHandler: quit)
             case .arguments(let makeArguments):
                 let config = NSWorkspace.OpenConfiguration()
@@ -131,7 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             return
         }
-        NSApp.terminate(nil)
+        finish()
     }
 
     // No app ID means "Other App…": let the user pick any app.
@@ -150,10 +183,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func open(_ dir: String, withAppAt app: URL?) {
-        guard let app else { NSApp.terminate(nil); return }
+        guard let app else { finish(); return }
         NSWorkspace.shared.open([URL(fileURLWithPath: dir, isDirectory: true)], withApplicationAt: app,
                                 configuration: NSWorkspace.OpenConfiguration()) { _, _ in
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            DispatchQueue.main.async { self.finish() }
         }
     }
 

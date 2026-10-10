@@ -12,20 +12,22 @@ class FinderMenuSync: FIFinderSync {
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
         guard menuKind == .contextualMenuForContainer || menuKind == .contextualMenuForItems else { return nil }
         let menu = NSMenu(title: "")
-        menu.addItem(withTitle: "New File…", action: #selector(newFile(_:)), keyEquivalent: "")
-            .image = Self.symbol("doc.badge.plus")
-        menu.addItem(withTitle: "Open Terminal Here", action: #selector(openTerminal(_:)), keyEquivalent: "")
-            .image = Self.symbol("terminal")
-        let openWith = menu.addItem(withTitle: "Open Folder With", action: nil, keyEquivalent: "")
-        openWith.image = Self.symbol("arrow.up.forward.app")
-        openWith.submenu = Self.openWithMenu()
-        menu.addItem(withTitle: "Copy Path", action: #selector(copyPath(_:)), keyEquivalent: "")
-            .image = Self.symbol("doc.on.doc")
-        if let dir = currentFolder, dir.path != "/" {
-            menu.addItem(withTitle: "Go to Parent Folder", action: #selector(goUp(_:)), keyEquivalent: "")
-                .image = Self.symbol("arrow.turn.left.up")
+        for item in menuItems where !isHidden(item.id) {
+            let entry = NSMenuItem(title: item.title, action: nil, keyEquivalent: "")
+            switch item.id {
+            case "new-file": entry.action = #selector(newFile(_:))
+            case "terminal": entry.action = #selector(openTerminal(_:))
+            case "open-with": entry.submenu = Self.openWithMenu()
+            case "copy-path": entry.action = #selector(copyPath(_:))
+            case "parent-folder":
+                guard let dir = currentFolder, dir.path != "/" else { continue }
+                entry.action = #selector(goUp(_:))
+            default: continue
+            }
+            entry.image = Self.symbol(item.symbol)
+            menu.addItem(entry)
         }
-        return menu
+        return menu.items.isEmpty ? nil : menu
     }
 
     // Finder drops the template flag when it copies the menu, so SF Symbols would always render

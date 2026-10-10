@@ -3,6 +3,7 @@
 #                            Without [app], uses the copy Homebrew built next to this script.
 # finder-menu disable        Turns the extension off and removes the app from ~/Applications.
 # finder-menu terminal [app] Shows or sets the terminal for Open Terminal Here ("auto" to reset).
+# finder-menu settings       Opens the settings window (menu items, terminal).
 set -euo pipefail
 
 EXT_ID="local.findermenu.extension"
@@ -28,6 +29,7 @@ enable() {
     sleep 1
     if pluginkit -m -i "$EXT_ID" | grep -q "^+.*$EXT_ID"; then
       echo "Finder Menu is on. Right-click inside any Finder folder."
+      echo "To choose which items appear and which terminal opens: finder-menu settings"
       return
     fi
   done
@@ -80,5 +82,11 @@ case "${1:-}" in
   enable) shift; enable "$@" ;;
   disable) disable ;;
   terminal) shift; terminal "$@" ;;
-  *) echo "usage: finder-menu enable | disable | terminal [app]" >&2; exit 1 ;;
+  settings)
+    if [ ! -d "$INSTALLED" ]; then
+      echo "Finder Menu isn't installed in $DEST. Run: finder-menu enable" >&2
+      exit 1
+    fi
+    open "$INSTALLED" ;;
+  *) echo "usage: finder-menu enable | disable | terminal [app] | settings" >&2; exit 1 ;;
 esac
