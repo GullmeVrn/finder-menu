@@ -22,22 +22,6 @@ Right-click **empty space** in any folder, with nothing selected:
 
 Right-clicking a file or folder works too: **Copy Path** copies the selected items' paths, and **Open Terminal Here** and **Open Folder With** use the selected folder.
 
-To add an editor to the list, add its bundle ID to `Sources/Shared/Editors.swift`. You can find an app's bundle ID with `osascript -e 'id of app "AppName"'`.
-
-## Privacy & security
-
-You build Finder Menu yourself from this source, so there's no downloaded app to trust. Everything below can be checked in the code:
-
-- **No network access.** There's no networking code, so nothing is sent anywhere: no telemetry, no analytics, no update checks.
-- **Small enough to read.** About 300 lines of Swift and 100 lines of shell scripts (`install.sh` and `scripts/`). Read them before you run them.
-- **Sandboxed Finder extension.** It can't read your files. It only gets the folder you right-click and the items you select.
-- **The helper only acts when you pick a menu item.** It creates an empty file with the name you type (never overwriting anything), opens a terminal or an app in a folder, or moves the Finder window up a level.
-- **Links from other apps are checked.** The extension sends actions to the helper as `findermenu://` links. Other apps can send those links too, and so can a website after your browser asks you. So the helper only acts on folders that exist, only opens apps from its built-in IDE list (or one you pick yourself), and always asks before creating a file.
-- **One permission.** Go to Parent Folder asks once to control Finder. Finder Menu doesn't ask for Full Disk Access, Accessibility or anything else.
-- **Signed locally, not notarized.** `install.sh` signs the build on your Mac ("Sign to Run Locally"). It isn't notarized by Apple, because there's no download for Apple to check.
-
-Found a security problem? See [SECURITY.md](SECURITY.md).
-
 ## Install
 
 **With Homebrew:**
@@ -88,6 +72,20 @@ From source:
 - `Sources/Shared/Editors.swift` is the IDE list. The extension builds the submenu from it, and the helper refuses links naming any app that isn't on it.
 - `scripts/build.sh` compiles and signs the app; `scripts/finder-menu enable|disable` copies it into `~/Applications` and turns the extension on or off. `install.sh`, `uninstall.sh` and the Homebrew formula all use these two.
 - `scripts/make-icon.swift` draws the app icon in code and regenerates `Resources/AppIcon.icns` and `docs/icon.png`.
+
+## Privacy & security
+
+You build Finder Menu yourself from this source, so there's no downloaded app to trust. Everything below can be checked in the code:
+
+- **No network access.** There's no networking code, so nothing is sent anywhere: no telemetry, no analytics, no update checks.
+- **Small enough to read.** About 300 lines of Swift and 100 lines of shell scripts (`install.sh` and `scripts/`). Read them before you run them.
+- **Sandboxed Finder extension.** It can't read your files. It only gets the folder you right-click and the items you select.
+- **The helper only acts when you pick a menu item.** It creates an empty file with the name you type (never overwriting anything), opens a terminal or an app in a folder, or moves the Finder window up a level.
+- **Links from other apps are checked.** The extension sends actions to the helper as `findermenu://` links. Other apps can send those links too, and so can a website after your browser asks you. So the helper only acts on folders that exist, only opens apps from its built-in IDE list (or one you pick yourself), and always asks before creating a file.
+- **One permission.** Go to Parent Folder asks once to control Finder. Finder Menu doesn't ask for Full Disk Access, Accessibility or anything else.
+- **Signed locally, not notarized.** `install.sh` signs the build on your Mac ("Sign to Run Locally"). It isn't notarized by Apple, because there's no download for Apple to check.
+
+Found a security problem? See [SECURITY.md](SECURITY.md).
 
 ## License
 
