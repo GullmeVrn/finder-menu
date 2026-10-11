@@ -44,19 +44,26 @@ enable() {
 }
 
 # Right after a reinstall, Finder can start the extension twice (every menu item then shows up
-# twice) or not at all. Restart it into exactly one running copy.
+# twice) or not at all. Restart it until Finder runs exactly one copy.
 restart_extension() {
   for _ in 1 2 3 4 5; do
     pkill -f FinderMenuExtension.appex 2>/dev/null || true
     sleep 1
     pluginkit -e use -i "$EXT_ID"
     sleep 1
-    if [ "$(pgrep -f FinderMenuExtension.appex | wc -l | tr -d ' ')" = 1 ]; then
+    if [ "$(finder_copies)" = 1 ]; then
       return
     fi
   done
   echo "Finder Menu is registered, but its Finder extension didn't restart cleanly." >&2
   echo "If the menu is missing or doubled, relaunch Finder (hold Option, right-click Finder in the Dock → Relaunch)." >&2
+}
+
+# Copies of the extension that Finder itself runs. Open/Save panels in other apps run their own
+# copies, which are normal, so count only the running instances in Finder's launchd domain.
+finder_copies() {
+  launchctl print "pid/$(pgrep -xU "$UID" Finder)" 2>/dev/null |
+    grep -cE "^[[:space:]]+[1-9][0-9]*[[:space:]]+-[[:space:]]+$EXT_ID\.[0-9A-F-]+$" || true
 }
 
 disable() {
