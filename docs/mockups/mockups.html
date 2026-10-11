@@ -1,0 +1,446 @@
+<!doctype html>
+<!--
+  Mockups of Finder Menu for the README, drawn with HTML and CSS from the data in the script below.
+  `swift scripts/make-mockups.swift` fills in the real SF Symbols, app and file icons, and saves every
+  scene in light and dark to docs/images. In a browser, pick a scene with #menu/dark (icons stay blank).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Finder Menu mockups</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body {
+    font: 13px/16px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--text);
+  }
+
+  .light {
+    --text: rgba(0, 0, 0, .85);
+    --text-2: rgba(0, 0, 0, .5);
+    --text-3: rgba(0, 0, 0, .26);
+    --window: #fff;
+    --edge: rgba(0, 0, 0, .16);
+    --rim: transparent;
+    --hairline: rgba(0, 0, 0, .085);
+    --zebra: rgba(0, 0, 0, .035);
+    --menu: rgba(252, 252, 252, .98);
+    --separator: rgba(0, 0, 0, .1);
+    --open: rgba(0, 0, 0, .1);
+    --control: rgba(0, 0, 0, .065);
+    --unchecked: rgba(0, 0, 0, .09);
+    --field: #fff;
+    --glass: rgba(255, 255, 255, .94);
+    --glass-edge: rgba(0, 0, 0, .1);
+    --light-off: rgba(0, 0, 0, .12);
+    --shadow: 0 22px 50px rgba(0, 0, 0, .2), 0 5px 15px rgba(0, 0, 0, .1);
+    --menu-shadow: 0 16px 36px rgba(0, 0, 0, .18), 0 3px 10px rgba(0, 0, 0, .08);
+  }
+  .dark {
+    --text: rgba(255, 255, 255, .88);
+    --text-2: rgba(255, 255, 255, .55);
+    --text-3: rgba(255, 255, 255, .28);
+    --window: #202020;
+    --edge: rgba(0, 0, 0, .75);
+    --rim: rgba(255, 255, 255, .14);
+    --hairline: rgba(255, 255, 255, .09);
+    --zebra: rgba(255, 255, 255, .04);
+    --menu: rgba(42, 42, 42, .98);
+    --separator: rgba(255, 255, 255, .12);
+    --open: rgba(255, 255, 255, .13);
+    --control: rgba(255, 255, 255, .13);
+    --unchecked: rgba(255, 255, 255, .16);
+    --field: rgba(255, 255, 255, .06);
+    --glass: rgba(255, 255, 255, .09);
+    --glass-edge: rgba(255, 255, 255, .1);
+    --light-off: rgba(255, 255, 255, .2);
+    --shadow: 0 22px 50px rgba(0, 0, 0, .55), 0 5px 15px rgba(0, 0, 0, .35);
+    --menu-shadow: 0 16px 36px rgba(0, 0, 0, .5), 0 3px 10px rgba(0, 0, 0, .3);
+  }
+  :root { --accent: #0091ff; --check: #3f8cf3; }
+
+  #stage { position: relative; overflow: hidden; }
+  #scene { position: absolute; }
+
+  /* SF Symbols arrive as alpha masks, so they take the color of the text around them. */
+  .sym {
+    display: inline-block; flex: none;
+    background-color: currentColor;
+    -webkit-mask: var(--mask) center / contain no-repeat;
+    mask: var(--mask) center / contain no-repeat;
+  }
+  img.app, img.file { display: block; flex: none; width: 16px; height: 16px; }
+
+  /* Windows */
+  .window {
+    position: absolute; overflow: hidden;
+    background: var(--window); border-radius: 16px;
+    box-shadow: 0 0 0 .5px var(--edge), inset 0 0 0 .5px var(--rim), var(--shadow);
+  }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .14); }
+  .lights i:nth-child(1) { background: #ff5f57; }
+  .lights i:nth-child(2) { background: #febc2e; }
+  .lights i:nth-child(3) { background: #28c840; }
+  .lights.closable-only i:not(:first-child) { background: var(--light-off); box-shadow: none; }
+
+  /* Finder */
+  .finder { border-radius: 22px; }
+  .toolbar { display: flex; align-items: center; gap: 12px; height: 54px; padding: 0 12px 0 18px; }
+  .capsule {
+    display: flex; align-items: center; height: 32px; padding: 0 3px; border-radius: 16px;
+    background: var(--glass); box-shadow: 0 0 0 .5px var(--glass-edge), 0 2px 6px rgba(0, 0, 0, .07);
+  }
+  .capsule > span { display: flex; align-items: center; justify-content: center; width: 34px; height: 26px; border-radius: 13px; }
+  .capsule > span.on { background: var(--open); }
+  .capsule > span.off { color: var(--text-3); }
+  .folder-title { font-size: 14px; font-weight: 700; margin-left: 2px; }
+  .spacer { flex: 1; }
+  .columns {
+    display: grid; grid-template-columns: 1fr 150px; align-items: center;
+    height: 26px; margin: 0 10px; padding-left: 30px;
+    border-bottom: 1px solid var(--hairline); color: var(--text-2); font-size: 12px; font-weight: 600;
+  }
+  .columns .sorted { display: flex; align-items: center; gap: 6px; color: var(--text); }
+  .rows { padding-top: 4px; }
+  .row {
+    display: grid; grid-template-columns: 14px 1fr 150px; align-items: center;
+    height: 24px; margin: 0 10px; padding-left: 8px; border-radius: 6px;
+  }
+  .row:nth-child(even) { background: var(--zebra); }
+  .row .name { display: flex; align-items: center; gap: 6px; }
+  .row .date { color: var(--text-2); }
+  .row .disclosure { color: var(--text-2); }
+
+  /* Menus: sizes measured from macOS 26 at 2x. */
+  .menu {
+    position: absolute; padding: 5px 0; border-radius: 12px; white-space: nowrap;
+    background: var(--menu); box-shadow: 0 0 0 .5px var(--edge), inset 0 0 0 .5px var(--rim), var(--menu-shadow);
+  }
+  .item { position: relative; display: flex; align-items: center; height: 24px; padding: 0 42px 0 15px; }
+  .menu.flat .item { padding-right: 20px; }
+  .item > * { position: relative; }
+  .item.open::before, .item.hover::before {
+    content: ""; position: absolute; inset: 0 5px; border-radius: 7px; background: var(--open);
+  }
+  .item.hover::before { background: var(--accent); }
+  .item.hover { color: #fff; }
+  .item.dim { opacity: .4; }
+  .item .icon { display: flex; justify-content: center; width: 18px; margin-right: 4px; }
+  .item .chevron { position: absolute; right: 15px; }
+  .sep { position: relative; height: 11px; }
+  .sep::after { content: ""; position: absolute; left: 15px; right: 15px; top: 5px; height: 1px; background: var(--separator); }
+
+  .cursor { position: absolute; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .35)); }
+  .then { position: absolute; color: var(--text-3); }
+
+  /* Settings */
+  .titlebar {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    height: 32px; font-weight: 700;
+  }
+  .titlebar .lights { position: absolute; left: 14px; }
+  .settings .content { padding: 20px 24px; }
+  .header { display: flex; align-items: center; gap: 12px; }
+  .header img { width: 56px; height: 56px; }
+  .header .name { font-size: 15px; line-height: 19px; font-weight: 700; }
+  .header .version { margin-top: 2px; font-size: 11px; line-height: 14px; color: var(--text-2); }
+  .section { font-weight: 700; }
+  .checkbox { display: flex; align-items: center; gap: 7px; height: 16px; }
+  .checkbox .box {
+    display: flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 4.5px; background: var(--check); color: #fff;
+  }
+  .checkbox.off .box { background: var(--unchecked); }
+  .popup {
+    display: flex; align-items: center; gap: 6px; width: 250px; height: 24px; padding: 0 8px 0 7px;
+    border-radius: 7px; background: var(--control);
+  }
+  .popup .updown { margin-left: auto; }
+  .template { display: flex; align-items: center; justify-content: space-between; height: 20px; }
+  .button {
+    display: flex; align-items: center; justify-content: center;
+    height: 20px; padding: 0 10px; border-radius: 6px; font-size: 11px;
+    background: var(--control); box-shadow: 0 .5px 1px rgba(0, 0, 0, .12);
+  }
+  .note { font-size: 11px; line-height: 14px; color: var(--text-2); }
+
+  /* New File dialog */
+  .alert { border-radius: 24px; padding: 22px 20px 18px; }
+  .alert > img { display: block; width: 64px; height: 64px; margin: 0 0 12px -4px; }
+  .alert .title { font-size: 15px; line-height: 19px; font-weight: 700; }
+  .alert .info { margin: 6px 0 14px; }
+  .field {
+    display: flex; align-items: center; height: 24px; padding: 0 6px; border-radius: 6px;
+    background: var(--field); box-shadow: 0 0 0 .5px var(--edge), 0 0 0 3.5px rgba(0, 145, 255, .45);
+  }
+  .field .caret { width: 1px; height: 15px; margin-left: 1px; background: var(--text); }
+  .alert .checkbox { margin-top: 14px; }
+  .buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .buttons > div {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    height: 30px; border-radius: 15px; background: var(--control);
+  }
+  .buttons > .default { background: var(--accent); color: #fff; font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="scene"></div></div>
+<script>
+// Everything shown in the mockups. Titles match the app's English strings.
+const finderItems = [
+  { title: 'New Folder', dim: true },
+  { title: 'Get Info', dim: true },
+  '-',
+  { title: 'View', submenu: true, dim: true },
+  { title: 'Sort By', submenu: true, dim: true },
+  '-',
+];
+const ours = (newFile, openWith) => [
+  { title: newFile ? 'New File' : 'New File…', symbol: 'doc.badge.plus', submenu: newFile, state: newFile && 'open' },
+  { title: 'Open Terminal Here', symbol: 'terminal' },
+  { title: 'Open Folder With', symbol: 'arrow.up.forward.app', submenu: true, state: openWith && 'open' },
+  { title: 'Copy Path', symbol: 'doc.on.doc' },
+  { title: 'Go to Parent Folder', symbol: 'arrow.turn.left.up' },
+];
+const editors = [
+  { title: 'Visual Studio Code', app: 'com.microsoft.VSCode', state: 'hover' },
+  { title: 'Sublime Text', app: 'com.sublimetext.4' },
+  { title: 'IntelliJ IDEA', app: 'com.jetbrains.intellij' },
+  { title: 'PyCharm', app: 'com.jetbrains.pycharm' },
+  { title: 'Android Studio', app: 'com.google.android.studio' },
+  { title: 'Xcode', app: 'com.apple.dt.Xcode' },
+  '-',
+  { title: 'Other App…', symbol: 'ellipsis.circle' },
+];
+const templates = ['notes.md', '.env', 'README.md', 'todo.txt'];
+const files = [
+  { name: 'docs', type: 'public.folder' },
+  { name: 'src', type: 'public.folder' },
+  { name: 'package.json', type: 'public.json' },
+  { name: 'README.md', type: 'net.daringfireball.markdown' },
+];
+
+// DOM helpers
+function h(tag, props, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value == null || value === false) continue;
+    if (key === 'style') Object.assign(el.style, value);
+    else el.setAttribute(key === 'cls' ? 'class' : key, value);
+  }
+  for (const child of children.flat(Infinity)) if (child != null && child !== false) el.append(child);
+  return el;
+}
+const at = (x, y, width, height) => ({ left: x + 'px', top: y + 'px', width: width && width + 'px', height: height && height + 'px' });
+const sym = (name, size = 13, weight = 'regular', cls = '') =>
+  h('i', { cls: ('sym ' + cls).trim(), 'data-symbol': name, 'data-size': size, 'data-weight': weight });
+const appIcon = id => h('img', { cls: 'app', 'data-app': id, alt: '' });
+const fileIcon = type => h('img', { cls: 'file', 'data-type': type, alt: '' });
+const lights = cls => h('div', { cls: ('lights ' + (cls || '')).trim() }, h('i'), h('i'), h('i'));
+const cursor = (x, y) => h('div', { cls: 'cursor', style: at(x, y) }, svgCursor());
+
+function svgCursor() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', '20'); svg.setAttribute('height', '28'); svg.setAttribute('viewBox', '0 0 20 28');
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', 'M2 2 L2 22.5 L7.1 17.7 L10.7 26 L14.2 24.5 L10.6 16.4 L17.4 16.4 Z');
+  path.setAttribute('fill', '#000'); path.setAttribute('stroke', '#fff');
+  path.setAttribute('stroke-width', '1.7'); path.setAttribute('stroke-linejoin', 'round');
+  svg.append(path);
+  return svg;
+}
+
+// Items: '-' is a separator; otherwise { title, symbol | app, submenu, state: 'open' | 'hover', dim }.
+function menu(items, x = 0, y = 0) {
+  const flat = !items.some(item => item.submenu);
+  return h('div', { cls: flat ? 'menu flat' : 'menu', style: at(x, y) }, items.map(item => item === '-'
+    ? h('div', { cls: 'sep' })
+    : h('div', { cls: ['item', item.state, item.dim && 'dim'].filter(Boolean).join(' ') },
+        (item.symbol || item.app) && h('span', { cls: 'icon' }, item.app ? appIcon(item.app) : sym(item.symbol)),
+        h('span', null, item.title),
+        item.submenu && sym('chevron.right', 12, 'semibold', 'chevron'))));
+}
+
+// Opens `sub` beside the open item of `parent`, with its first item level with it, the way macOS does.
+function attach(parent, sub) {
+  const row = parent.querySelector('.item.open');
+  sub.style.left = parent.offsetLeft + parent.offsetWidth - 5 + 'px';
+  sub.style.top = parent.offsetTop + row.offsetTop - 5 + 'px';
+}
+// The pointer rests past the end of the highlighted title, hanging into the empty space below it.
+function pointAt(menuEl, el) {
+  const row = menuEl.querySelector('.item.hover');
+  el.style.left = menuEl.offsetLeft + menuEl.offsetWidth - 17 + 'px';
+  el.style.top = menuEl.offsetTop + row.offsetTop + 11 + 'px';
+}
+
+function finderWindow(x, y, width, height) {
+  const rowCount = Math.floor((height - 54 - 26 - 4) / 24);
+  return h('div', { cls: 'window finder', style: at(x, y, width, height) },
+    h('div', { cls: 'toolbar' },
+      lights(),
+      h('div', { cls: 'capsule' },
+        h('span', null, sym('chevron.left', 14, 'medium')), h('span', { cls: 'off' }, sym('chevron.right', 14, 'medium'))),
+      h('div', { cls: 'folder-title' }, 'my-app'),
+      h('div', { cls: 'spacer' }),
+      h('div', { cls: 'capsule' }, ['square.grid.2x2', 'list.bullet', 'rectangle.split.3x1', 'squares.below.rectangle']
+        .map((name, i) => h('span', { cls: i === 1 ? 'on' : null }, sym(name, 14)))),
+      h('div', { cls: 'capsule' }, h('span', null, sym('magnifyingglass', 14)))),
+    h('div', { cls: 'columns' },
+      h('span', { cls: 'sorted' }, 'Name', sym('chevron.up', 9, 'bold')), h('span', null, 'Date Modified')),
+    h('div', { cls: 'rows' }, Array.from({ length: rowCount }, (_, i) => {
+      const file = files[i];
+      if (!file) return h('div', { cls: 'row' });
+      const folder = file.type === 'public.folder';
+      return h('div', { cls: 'row' },
+        h('span', { cls: 'disclosure' }, folder && sym('chevron.right', 9, 'bold')),
+        h('span', { cls: 'name' }, fileIcon(file.type), file.name),
+        h('span', { cls: 'date' }, 'Today at 9:41'));
+    })));
+}
+
+function checkbox(title, on = true) {
+  return h('div', { cls: on ? 'checkbox' : 'checkbox off' },
+    h('span', { cls: 'box' }, on && sym('checkmark', 10, 'bold')), title);
+}
+const gap = px => h('div', { style: { height: px + 'px' } });
+
+// Scenes return the elements to place, and an optional function to run once they're laid out.
+const scenes = {
+  // The README's hero: right-clicking empty space shows Finder's own items, faded here, then
+  // Finder Menu's, with Open Folder With open.
+  menu() {
+    const main = menu([...finderItems, ...ours(false, true)], 178, 196);
+    const sub = menu(editors);
+    const arrow = cursor();
+    return {
+      parts: [finderWindow(0, 0, 600, 470), main, sub, arrow],
+      layout() { attach(main, sub); pointAt(sub, arrow); },
+    };
+  },
+
+  // Save as template in the New File dialog, then the New File submenu it adds.
+  templates() {
+    const dialog = h('div', { cls: 'window alert', style: at(0, 0, 360) },
+      h('img', { src: '../icon.png', alt: '' }),
+      h('div', { cls: 'title' }, 'New File'),
+      h('div', { cls: 'info' }, 'In: ~/Projects/my-app'),
+      h('div', { cls: 'field' }, 'notes.md', h('span', { cls: 'caret' })),
+      checkbox('Save as template'),
+      h('div', { cls: 'buttons' }, h('div', null, 'Cancel'), h('div', { cls: 'default' }, 'Create')));
+    const then = h('div', { cls: 'then' }, sym('arrow.right', 22, 'semibold'));
+    const main = menu(ours(true, false));
+    const sub = menu([
+      { title: 'New File…', symbol: 'doc.badge.plus' },
+      '-',
+      ...templates.map((name, i) => ({ title: name, symbol: 'doc', state: i === 0 && 'hover' })),
+      '-',
+      { title: 'Manage Templates…', symbol: 'gearshape' },
+    ]);
+    const arrow = cursor();
+    return {
+      parts: [dialog, then, main, sub, arrow],
+      layout() {
+        // The menus sit level with the middle of the dialog, past an arrow.
+        const middle = dialog.offsetHeight / 2;
+        then.style.left = '384px';
+        then.style.top = middle - 11 + 'px';
+        main.style.left = '432px';
+        main.style.top = middle - sub.offsetHeight / 2 + 'px';
+        attach(main, sub);
+        pointAt(sub, arrow);
+      },
+    };
+  },
+
+  settings() {
+    return {
+      parts: [h('div', { cls: 'window settings', style: at(0, 0, 330) },
+        h('div', { cls: 'titlebar' }, lights('closable-only'), 'Finder Menu Settings'),
+        h('div', { cls: 'content' },
+          h('div', { cls: 'header' }, h('img', { src: '../icon.png', alt: '' }),
+            h('div', null, h('div', { cls: 'name' }, 'Finder Menu'), h('div', { cls: 'version' }, 'Version 1.4.0'))),
+          gap(20), h('div', { cls: 'section' }, 'Show in the right-click menu'), gap(10),
+          ['New File…', 'Open Terminal Here', 'Open Folder With', 'Copy Path', 'Go to Parent Folder']
+            .flatMap((title, i) => [i ? gap(8) : null, checkbox(title)]),
+          gap(20), h('div', { cls: 'section' }, 'Open Terminal Here uses'), gap(10),
+          h('div', { cls: 'popup' }, appIcon('com.googlecode.iterm2'), 'iTerm2',
+            sym('chevron.up.chevron.down', 10, 'semibold', 'updown')),
+          gap(20), h('div', { cls: 'section' }, 'New File templates'), gap(10),
+          templates.slice(0, 3).flatMap((name, i) => [i ? gap(6) : null,
+            h('div', { cls: 'template' }, name, h('div', { cls: 'button' }, 'Remove'))]),
+          gap(12), h('div', { cls: 'template' }, h('span'), h('div', { cls: 'button' }, 'Remove All')),
+          gap(20), h('div', { cls: 'note' }, 'Changes apply the next time you right-click in Finder.')))],
+    };
+  },
+};
+
+// Room around everything for the shadows, which hang lower than they spread.
+const margin = { top: 30, right: 46, bottom: 60, left: 46 };
+
+window.FM = {
+  // Builds a scene and lists the icons it needs: [{ symbol, size, weight } | { app } | { type }].
+  show(name, theme) {
+    document.documentElement.className = theme;
+    const scene = document.getElementById('scene');
+    scene.replaceChildren();
+    const { parts, layout } = scenes[name]();
+    scene.append(...parts);
+    if (layout) layout();
+    return [...document.querySelectorAll('[data-symbol]')].map(el => ({ symbol: el.dataset.symbol, size: +el.dataset.size, weight: el.dataset.weight }))
+      .concat([...document.querySelectorAll('[data-app]')].map(el => ({ app: el.dataset.app })))
+      .concat([...document.querySelectorAll('[data-type]')].map(el => ({ type: el.dataset.type })));
+  },
+
+  // Takes { key: { url, width?, height? } } for those icons, then sizes the stage to fit the scene.
+  async provide(icons) {
+    const key = el => el.dataset.symbol ? [el.dataset.symbol, el.dataset.size, el.dataset.weight].join('|')
+      : el.dataset.app || el.dataset.type;
+    for (const el of document.querySelectorAll('[data-symbol], [data-app], [data-type]')) {
+      const icon = icons[key(el)];
+      if (!icon) continue;
+      if (el.dataset.symbol) {
+        el.style.setProperty('--mask', `url(${icon.url})`);
+        el.style.width = icon.width + 'px';
+        el.style.height = icon.height + 'px';
+      } else {
+        el.src = icon.url;
+      }
+    }
+    await Promise.all([...document.images].map(img => img.decode().catch(() => {})));
+    return this.fit();
+  },
+
+  fit() {
+    const scene = document.getElementById('scene');
+    const box = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+    for (const el of scene.children) {
+      const r = el.getBoundingClientRect();
+      box.left = Math.min(box.left, r.left); box.top = Math.min(box.top, r.top);
+      box.right = Math.max(box.right, r.right); box.bottom = Math.max(box.bottom, r.bottom);
+    }
+    const sceneBox = scene.getBoundingClientRect();
+    scene.style.left = margin.left - (box.left - sceneBox.left) + 'px';
+    scene.style.top = margin.top - (box.top - sceneBox.top) + 'px';
+    const stage = document.getElementById('stage');
+    const width = Math.ceil(box.right - box.left + margin.left + margin.right);
+    const height = Math.ceil(box.bottom - box.top + margin.top + margin.bottom);
+    stage.style.width = width + 'px';
+    stage.style.height = height + 'px';
+    return { width, height };
+  },
+};
+
+// Opened directly in a browser: show the scene named in the hash, e.g. mockups.html#settings/dark.
+if (location.hash) {
+  const [name = 'menu', theme = 'light'] = location.hash.slice(1).split('/');
+  FM.show(name, theme);
+  FM.fit();
+}
+</script>
+</body>
+</html>
