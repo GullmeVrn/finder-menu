@@ -1,0 +1,34 @@
+/* Menu Items */
+"New File…" = "Новый файл…";
+"Open Terminal Here" = "Открыть в терминале";
+"Open Folder With" = "Открыть папку в программе";
+"Copy Path" = "Скопировать путь";
+"Go to Parent Folder" = "Перейти в родительскую папку";
+"Other App…" = "Другая программа…";
+
+/* New File Dialog */
+"New File" = "Новый файл";
+"In: %@" = "В папке: %@";
+"⚠️ That isn't a valid file name." = "⚠️ Недопустимое имя файла.";
+"⚠️ \"%@\" already exists." = "⚠️ «%@» уже существует.";
+"⚠️ Couldn't create the file here (no permission?)." = "⚠️ Не удалось создать здесь файл (нет прав доступа?).";
+"Create" = "Создать";
+"Cancel" = "Отменить";
+
+/* Open Folder With Dialog */
+"Open “%@” with:" = "Открыть «%@» в программе:";
+"Open" = "Открыть";
+
+/* Main Menu */
+"Quit Finder Menu" = "Завершить Finder Menu";
+"Window" = "Окно";
+"Close" = "Закрыть";
+
+/* Settings Window */
+"Finder Menu Settings" = "Настройки Finder Menu";
+"Show in the right-click menu" = "Показывать в контекстном меню";
+"Open Terminal Here uses" = "Терминал для «Открыть в терминале»";
+"Automatic (%@)" = "Автоматически (%@)";
+"Changes apply the next time you right-click in Finder." = "Изменения вступят в силу при следующем нажатии правой кнопкой в Finder.";
+"Choose the app for Open Terminal Here:" = "Выберите программу для «Открыть в терминале»:";
+"Choose" = "Выбрать";
