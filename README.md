@@ -67,7 +67,7 @@ Changes apply the next time you right-click. You can also set the terminal from 
 
 ## Languages
 
-Finder Menu uses your Mac's language: English, German (translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)) or Russian. To add a language, copy `Resources/en.lproj` to `Resources/<code>.lproj`, translate the text in it, and add the code to `CFBundleLocalizations` in both `Resources/*-Info.plist` files.
+Finder Menu uses your Mac's language: English, German (translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)), Italian or Russian. To add a language, copy `Resources/en.lproj` to `Resources/<code>.lproj`, translate the text in it, and add the code to `CFBundleLocalizations` in both `Resources/*-Info.plist` files.
 
 ## Uninstall
 
