@@ -23,6 +23,13 @@
 
 /* Main Menu */
 "Quit Finder Menu" = "Esci da Finder Menu";
+"Edit" = "Modifica";
+"Undo" = "Annulla";
+"Redo" = "Ripeti";
+"Cut" = "Taglia";
+"Copy" = "Copia";
+"Paste" = "Incolla";
+"Select All" = "Seleziona tutto";
 "Window" = "Finestra";
 "Close" = "Chiudi";
 

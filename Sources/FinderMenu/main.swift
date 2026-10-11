@@ -48,6 +48,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         finish()
     }
 
+    // Before any link is handled: text fields get ⌘V, ⌘C, ⌘A and ⌘Z from the Edit menu, so the New File
+    // dialog needs it too, even though the menu bar only shows with the settings window.
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.mainMenu = makeMainMenu()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Launched by a menu item, a findermenu:// link arrives right away; otherwise the user opened the app.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -64,7 +70,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showSettings() {
         if settingsWindow == nil {
             NSApp.setActivationPolicy(.regular)
-            NSApp.mainMenu = makeMainMenu()
             let controller = SettingsWindowController()
             NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: controller.window,
                                                    queue: .main) { _ in NSApp.terminate(nil) }
@@ -77,10 +82,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func makeMainMenu() -> NSMenu {
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: NSLocalizedString("Quit Finder Menu", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let editMenu = NSMenu(title: NSLocalizedString("Edit", comment: ""))
+        editMenu.addItem(withTitle: NSLocalizedString("Undo", comment: ""), action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: NSLocalizedString("Redo", comment: ""), action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: NSLocalizedString("Cut", comment: ""), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: NSLocalizedString("Copy", comment: ""), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: NSLocalizedString("Paste", comment: ""), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: NSLocalizedString("Select All", comment: ""), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         let windowMenu = NSMenu(title: NSLocalizedString("Window", comment: ""))
         windowMenu.addItem(withTitle: NSLocalizedString("Close", comment: ""), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         let main = NSMenu()
-        for submenu in [appMenu, windowMenu] {
+        for submenu in [appMenu, editMenu, windowMenu] {
             let item = NSMenuItem()
             item.submenu = submenu
             main.addItem(item)
@@ -274,7 +287,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func askFileName(info: String, suggested: String, saveAsTemplate: Bool) -> NewFileOptions? {
-        NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("New File", comment: "")
         alert.informativeText = info
@@ -300,6 +312,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         alert.accessoryView = stack
         alert.window.initialFirstResponder = field
 
+        // The Finder extension can't hand focus to the helper, and macOS refuses to bring forward an app
+        // with no windows on screen. So ask once the alert is showing, or typing still goes to Finder.
+        RunLoop.main.perform(inModes: [.modalPanel]) { NSApp.activate(ignoringOtherApps: true) }
         guard alert.runModal() == .alertFirstButtonReturn else { return nil }
         return NewFileOptions(name: field.stringValue, saveAsTemplate: saveBox.state == .on)
     }

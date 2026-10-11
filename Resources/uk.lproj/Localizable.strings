@@ -23,6 +23,13 @@
 
 /* Main Menu */
 "Quit Finder Menu" = "Завершити Finder Menu";
+"Edit" = "Редагування";
+"Undo" = "Відмінити";
+"Redo" = "Повторити";
+"Cut" = "Вирізати";
+"Copy" = "Скопіювати";
+"Paste" = "Вставити";
+"Select All" = "Вибрати все";
 "Window" = "Вікно";
 "Close" = "Закрити";
 
