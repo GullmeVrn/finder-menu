@@ -3,7 +3,7 @@
 #                            Without [app], uses the copy Homebrew built next to this script.
 # finder-menu disable        Turns the extension off and removes the app from ~/Applications.
 # finder-menu terminal [app] Shows or sets the terminal for Open Terminal Here ("auto" to reset).
-# finder-menu settings       Opens the settings window (menu items, terminal).
+# finder-menu settings       Opens the settings window (menu items, terminal, New File templates).
 set -euo pipefail
 
 EXT_ID="local.findermenu.extension"

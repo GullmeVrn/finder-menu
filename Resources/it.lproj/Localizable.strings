@@ -15,8 +15,7 @@
 "Create" = "Crea";
 "Cancel" = "Annulla";
 "Save as template" = "Salva come modello";
-"Custom…" = "Personalizzato…";
-"Remove Template" = "Rimuovi modello";
+"Manage Templates…" = "Gestisci modelli…";
 
 /* Open Folder With Dialog */
 "Open “%@” with:" = "Apri “%@” con:";

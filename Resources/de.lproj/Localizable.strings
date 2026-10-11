@@ -15,8 +15,7 @@
 "Create" = "Erstellen";
 "Cancel" = "Abbrechen";
 "Save as template" = "Als Vorlage speichern";
-"Custom…" = "Benutzerdefiniert…";
-"Remove Template" = "Vorlage entfernen";
+"Manage Templates…" = "Vorlagen verwalten…";
 
 /* Open Folder With Dialog */
 "Open “%@” with:" = "„%@“ öffnen mit:";

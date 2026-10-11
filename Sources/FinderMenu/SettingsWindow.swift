@@ -48,7 +48,7 @@ final class SettingsWindowController: NSWindowController {
         // .width so each row stretches; Remove can sit on the trailing edge.
         templatesStack.orientation = .vertical
         templatesStack.alignment = .width
-        templatesStack.spacing = 4
+        templatesStack.spacing = 6
         templatesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
         reloadTemplates()
 
@@ -94,12 +94,15 @@ final class SettingsWindowController: NSWindowController {
         return label
     }
 
+    // setContentSize keeps the bottom edge in place; keep the title bar there instead.
     private func resizeToFit() {
         guard let window, let content = window.contentView else { return }
-        window.setContentSize(content.fittingSize)
+        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: content.fittingSize))
+        frame.origin = NSPoint(x: window.frame.minX, y: window.frame.maxY - frame.height)
+        window.setFrame(frame, display: true)
     }
 
-    private func reloadTemplates() {
+    func reloadTemplates() {
         templatesStack.views.forEach { $0.removeFromSuperview() }
         let templates = fileTemplates
         if templates.isEmpty {
@@ -108,34 +111,32 @@ final class SettingsWindowController: NSWindowController {
             empty.textColor = .tertiaryLabelColor
             templatesStack.addArrangedSubview(empty)
         } else {
-            for (index, template) in templates.enumerated() {
-                templatesStack.addArrangedSubview(templateRow(template, index: index))
+            for template in templates {
+                templatesStack.addArrangedSubview(templateRow(template))
             }
             if templates.count > 1 {
-                let removeAll = NSButton(title: NSLocalizedString("Remove All", comment: ""), target: self, action: #selector(removeAllTemplates(_:)))
-                removeAll.bezelStyle = .inline
-                removeAll.setContentHuggingPriority(.required, for: .horizontal)
+                let removeAll = smallButton(NSLocalizedString("Remove All", comment: ""), action: #selector(removeAllTemplates(_:)))
                 let row = NSStackView(views: [NSView(), removeAll])
                 row.orientation = .horizontal
                 row.alignment = .centerY
                 row.distribution = .fill
+                // A little apart from the rows, so it doesn't read as another template.
+                templatesStack.setCustomSpacing(12, after: templatesStack.arrangedSubviews.last!)
                 templatesStack.addArrangedSubview(row)
             }
         }
         resizeToFit()
     }
 
-    private func templateRow(_ template: FileTemplate, index: Int) -> NSView {
+    private func templateRow(_ template: FileTemplate) -> NSView {
         let name = NSTextField(labelWithString: template.filename)
         name.translatesAutoresizingMaskIntoConstraints = false
         name.setContentHuggingPriority(.defaultLow, for: .horizontal)
         name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        let remove = NSButton(title: NSLocalizedString("Remove", comment: ""), target: self, action: #selector(removeTemplate(_:)))
+        let remove = smallButton(NSLocalizedString("Remove", comment: ""), action: #selector(removeTemplate(_:)))
         remove.translatesAutoresizingMaskIntoConstraints = false
-        remove.bezelStyle = .inline
-        remove.tag = index
-        remove.setContentHuggingPriority(.required, for: .horizontal)
+        remove.identifier = NSUserInterfaceItemIdentifier(template.id)
 
         let row = NSView()
         row.translatesAutoresizingMaskIntoConstraints = false
@@ -153,11 +154,19 @@ final class SettingsWindowController: NSWindowController {
         return row
     }
 
+    // A regular push button at small size: normal padding, compact enough for a list row.
+    private func smallButton(_ title: String, action: Selector) -> NSButton {
+        let button = NSButton(title: title, target: self, action: action)
+        button.controlSize = .small
+        button.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        return button
+    }
+
+    // By id, not row: the rows can be out of date if templates changed since they were built.
     @objc private func removeTemplate(_ sender: NSButton) {
-        var templates = fileTemplates
-        guard templates.indices.contains(sender.tag) else { return }
-        templates.remove(at: sender.tag)
-        fileTemplates = templates
+        guard let id = sender.identifier?.rawValue else { return }
+        removeFileTemplate(id: id)
         reloadTemplates()
     }
 

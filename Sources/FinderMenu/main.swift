@@ -17,22 +17,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         for url in urls {
-            guard let c = URLComponents(url: url, resolvingAgainstBaseURL: false),
-                  let path = c.queryItems?.first(where: { $0.name == "path" })?.value,
+            guard let c = URLComponents(url: url, resolvingAgainstBaseURL: false) else { continue }
+            // Manage Templates… doesn't act on a folder.
+            if c.host == "settings" { showSettings(); continue }
+            guard let path = c.queryItems?.first(where: { $0.name == "path" })?.value,
                   let dir = folder(for: path) else { continue }
             switch c.host {
             case "newfile":
-                // Template content comes from saved settings, not the URL — only the id travels in the link.
+                // The file name comes from saved settings, not the URL — only the template id travels in the link.
                 let templateID = c.queryItems?.first(where: { $0.name == "template" })?.value
                 if let templateID {
                     guard let template = fileTemplate(id: templateID) else { continue }
                     newFile(in: dir, from: template)
                 } else {
                     newFile(in: dir)
-                }
-            case "removetemplate":
-                if let id = c.queryItems?.first(where: { $0.name == "template" })?.value {
-                    removeFileTemplate(id: id)
                 }
             case "terminal": openTerminal(at: dir); return
             case "openwith":
@@ -45,6 +43,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             default: break
             }
         }
+        // A New File link can save a template while the settings window is open.
+        settingsWindow?.reloadTemplates()
         finish()
     }
 
@@ -207,18 +207,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func newFile(in dir: String) {
-        createFile(in: dir, suggested: "untitled.txt", contents: Data(), ask: true)
+        createFile(in: dir, suggested: "untitled.txt", ask: true)
     }
 
-    // One click from the New File submenu: use the template's name and contents, and if that name
-    // is taken, pick the next free name the way Finder does (notes.md → notes 2.md).
+    // One click from the New File submenu: use the template's name, and if that name is taken,
+    // pick the next free name the way Finder does (notes.md → notes 2.md).
     private func newFile(in dir: String, from template: FileTemplate) {
-        guard isValidTemplateFilename(template.filename) else { return }
-        let name = unusedFilename(template.filename, in: dir)
-        createFile(in: dir, suggested: name, contents: Data(template.content.utf8), ask: false)
+        createFile(in: dir, suggested: unusedFilename(template.filename, in: dir), ask: false)
     }
 
-    private func createFile(in dir: String, suggested: String, contents: Data, ask: Bool) {
+    private func createFile(in dir: String, suggested: String, ask: Bool) {
         var name = suggested
         var saveAsTemplate = false
         var problem: String?
@@ -229,21 +227,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let info = (problem.map { $0 + "\n\n" } ?? "") + inString
                 guard let options = askFileName(info: info, suggested: name,
                                                 saveAsTemplate: saveAsTemplate) else { return }
-                name = options.name.trimmingCharacters(in: .whitespaces)
+                name = options.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 saveAsTemplate = options.saveAsTemplate
             }
             let full = (dir as NSString).appendingPathComponent(name)
-            if !isValidTemplateFilename(name) {
+            if !isValidFilename(name) {
                 problem = NSLocalizedString("⚠️ That isn't a valid file name.", comment: "")
                 continue
             }
             do {
                 // A separate existence check cannot prevent another process from creating the same path.
-                try contents.write(to: URL(fileURLWithPath: full), options: .withoutOverwriting)
-                if saveAsTemplate {
-                    // New File always creates an empty file; the template stores the name (and empty contents).
-                    saveFileTemplate(filename: name, content: String(data: contents, encoding: .utf8) ?? "")
-                }
+                try Data().write(to: URL(fileURLWithPath: full), options: .withoutOverwriting)
+                if saveAsTemplate { saveFileTemplate(filename: name) }
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: full)])
                 return
             } catch let error as CocoaError where error.code == .fileWriteFileExists {
@@ -260,9 +255,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let ns = filename as NSString
         let base = ns.deletingPathExtension
         let ext = ns.pathExtension
+        // Unlike fileExists, attributesOfItem doesn't follow symlinks, so a broken link still counts as taken.
+        func taken(_ name: String) -> Bool {
+            (try? FileManager.default.attributesOfItem(atPath: (dir as NSString).appendingPathComponent(name))) != nil
+        }
         var candidate = filename
         var n = 2
-        while FileManager.default.fileExists(atPath: (dir as NSString).appendingPathComponent(candidate)) {
+        while taken(candidate) {
             candidate = ext.isEmpty ? "\(base) \(n)" : "\(base) \(n).\(ext)"
             n += 1
         }
@@ -297,7 +296,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         stack.alignment = .leading
         stack.spacing = 8
         stack.setCustomSpacing(12, after: field)
-        stack.frame = NSRect(x: 0, y: 0, width: 320, height: 52)
+        stack.frame = NSRect(origin: .zero, size: stack.fittingSize)
         alert.accessoryView = stack
         alert.window.initialFirstResponder = field
 

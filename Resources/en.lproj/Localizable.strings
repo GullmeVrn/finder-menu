@@ -15,8 +15,7 @@
 "Create" = "Create";
 "Cancel" = "Cancel";
 "Save as template" = "Save as template";
-"Custom…" = "Custom…";
-"Remove Template" = "Remove Template";
+"Manage Templates…" = "Manage Templates…";
 
 /* Open Folder With Dialog */
 "Open “%@” with:" = "Open “%@” with:";

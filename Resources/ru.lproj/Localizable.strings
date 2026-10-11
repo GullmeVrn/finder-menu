@@ -15,8 +15,7 @@
 "Create" = "Создать";
 "Cancel" = "Отменить";
 "Save as template" = "Сохранить как шаблон";
-"Custom…" = "Другой…";
-"Remove Template" = "Удалить шаблон";
+"Manage Templates…" = "Управление шаблонами…";
 
 /* Open Folder With Dialog */
 "Open “%@” with:" = "Открыть «%@» в программе:";

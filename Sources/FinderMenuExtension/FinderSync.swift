@@ -17,14 +17,8 @@ class FinderMenuSync: FIFinderSync {
             switch item.id {
             case "new-file":
                 let templates = fileTemplates
-                // Finder copies this menu and ignores isAlternate, so ⌥ can't swap items live.
-                // Instead, build Remove items when Option is already down at right-click time.
-                let removing = NSEvent.modifierFlags.contains(.option)
                 if templates.isEmpty {
                     entry.action = #selector(newFile(_:))
-                } else if removing {
-                    entry.title = NSLocalizedString("Remove Template", comment: "")
-                    entry.submenu = Self.removeTemplateMenu(templates)
                 } else {
                     entry.title = NSLocalizedString("New File", comment: "")
                     entry.submenu = Self.newFileMenu(templates)
@@ -92,29 +86,21 @@ class FinderMenuSync: FIFinderSync {
         return sub
     }
 
-    // Templates become one-click items; Custom… keeps the name dialog (with Save as template).
-    // Finder copies the menu and drops representedObject, so the tag is the index into
-    // fileTemplates — same pattern as Open Folder With.
+    // New File… (the name dialog, with Save as template) comes first; below it, templates are
+    // one-click items, and Manage Templates… opens the settings window, where they can be removed.
     static func newFileMenu(_ templates: [FileTemplate]) -> NSMenu {
         let sub = NSMenu(title: "")
-        for (i, template) in templates.enumerated() {
-            let item = sub.addItem(withTitle: template.filename, action: #selector(FinderMenuSync.newFileFromTemplate(_:)), keyEquivalent: "")
-            item.tag = i
-            item.image = symbol("doc")
+        sub.addItem(withTitle: NSLocalizedString("New File…", comment: ""), action: #selector(FinderMenuSync.newFile(_:)), keyEquivalent: "")
+            .image = symbol("doc.badge.plus")
+        sub.addItem(.separator())
+        let icon = symbol("doc") // One bitmap shared by every template item.
+        for template in templates {
+            sub.addItem(withTitle: template.filename, action: #selector(FinderMenuSync.newFileFromTemplate(_:)), keyEquivalent: "")
+                .image = icon
         }
         sub.addItem(.separator())
-        sub.addItem(withTitle: NSLocalizedString("Custom…", comment: ""), action: #selector(FinderMenuSync.newFile(_:)), keyEquivalent: "")
-            .image = symbol("doc.badge.plus")
-        return sub
-    }
-
-    static func removeTemplateMenu(_ templates: [FileTemplate]) -> NSMenu {
-        let sub = NSMenu(title: "")
-        for (i, template) in templates.enumerated() {
-            let item = sub.addItem(withTitle: template.filename, action: #selector(FinderMenuSync.removeTemplate(_:)), keyEquivalent: "")
-            item.tag = i
-            item.image = symbol("trash")
-        }
+        sub.addItem(withTitle: NSLocalizedString("Manage Templates…", comment: ""), action: #selector(FinderMenuSync.manageTemplates(_:)), keyEquivalent: "")
+            .image = symbol("gearshape")
         return sub
     }
 
@@ -144,21 +130,18 @@ class FinderMenuSync: FIFinderSync {
         callHelper("newfile", dir.path)
     }
 
+    // Finder copies the menu, so find the template by the item's title (file names are unique).
+    // An index could point at a different template if the list changed after the menu was built.
     @objc func newFileFromTemplate(_ sender: AnyObject?) {
-        let templates = fileTemplates
         guard let dir = currentFolder,
-              let tag = (sender as? NSMenuItem)?.tag,
-              templates.indices.contains(tag) else { return }
-        callHelper("newfile", dir.path, template: templates[tag].id)
+              let title = (sender as? NSMenuItem)?.title,
+              let template = fileTemplates.first(where: { $0.filename == title }) else { return }
+        callHelper("newfile", dir.path, template: template.id)
     }
 
-    @objc func removeTemplate(_ sender: AnyObject?) {
-        let templates = fileTemplates
-        guard let dir = currentFolder,
-              let tag = (sender as? NSMenuItem)?.tag,
-              templates.indices.contains(tag) else { return }
-        // Extension can only read settings; the helper performs the delete.
-        callHelper("removetemplate", dir.path, template: templates[tag].id)
+    // The extension can only read settings, so the helper's settings window removes templates.
+    @objc func manageTemplates(_ sender: AnyObject?) {
+        callHelper("settings")
     }
 
     @objc func openTerminal(_ sender: AnyObject?) {
@@ -174,13 +157,13 @@ class FinderMenuSync: FIFinderSync {
     }
 
     // The extension is sandboxed, so file creation and app launching happen in the helper app.
-    private func callHelper(_ action: String, _ path: String, app: String? = nil, template: String? = nil) {
+    private func callHelper(_ action: String, _ path: String? = nil, app: String? = nil, template: String? = nil) {
         var c = URLComponents()
         c.scheme = "findermenu"
         c.host = action
-        c.queryItems = [URLQueryItem(name: "path", value: path)]
-        if let app { c.queryItems?.append(URLQueryItem(name: "app", value: app)) }
-        if let template { c.queryItems?.append(URLQueryItem(name: "template", value: template)) }
+        let items = [("path", path), ("app", app), ("template", template)]
+            .compactMap { name, value in value.map { URLQueryItem(name: name, value: $0) } }
+        if !items.isEmpty { c.queryItems = items }
         if let url = c.url { NSWorkspace.shared.open(url) }
     }
 }
