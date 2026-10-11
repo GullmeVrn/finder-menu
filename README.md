@@ -46,7 +46,7 @@
     <td align="center" valign="top" width="25%"><h3>📂</h3><b>Built-in</b><br>Five actions in Finder's own right-click menu.<br><br></td>
     <td align="center" valign="top" width="25%"><h3>🧰</h3><b>Your tools</b><br>Terminals, VS Code, Cursor, JetBrains, Xcode…<br><br></td>
     <td align="center" valign="top" width="25%"><h3>🔒</h3><b>Private</b><br>No network code, no telemetry.<br><br></td>
-    <td align="center" valign="top" width="25%"><h3>🪶</h3><b>Tiny</b><br>About 850 lines of Swift, built on your Mac.<br><br></td>
+    <td align="center" valign="top" width="25%"><h3>🪶</h3><b>Tiny</b><br>About 900 lines of Swift, built on your Mac.<br><br></td>
   </tr>
 </table>
 
@@ -63,6 +63,8 @@ Right-click **empty space** in any folder, with nothing selected:
 | <picture><source media="(prefers-color-scheme: dark)" srcset="docs/icons/parent-folder-dark.png"><img src="docs/icons/parent-folder.png" width="20" height="20" alt=""></picture> | **Go&nbsp;to&nbsp;Parent&nbsp;Folder** | Moves the window up one level, even when Finder's Back button is greyed out (e.g. a window opened with `open .`). |
 
 Right-clicking a file or folder works too: **Copy Path** copies the selected items' paths, and **Open Terminal Here** and **Open Folder With** use the selected folder.
+
+The menu also appears on external drives, disk images and network shares (such as SMB), not just your Mac's own disk.
 
 ## New File templates
 
@@ -117,13 +119,14 @@ From source, run `git pull && ./install.sh` in the repo folder.
 Open **Finder Menu** from Spotlight or your Applications folder, or run `finder-menu settings`. The settings window lets you:
 
 - choose which items appear in the right-click menu
+- choose whether the menu also appears on external and network drives (it does by default)
 - pick the terminal for **Open Terminal Here**. Automatic uses the first one installed, in this order: iTerm2, Ghostty, Warp, WezTerm, kitty, Alacritty, Terminal. **Other App…** lets you pick any app.
 - remove [New File templates](#new-file-templates)
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png">
-    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: a checkbox for each right-click menu item, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
+    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: a checkbox for each right-click menu item and one for external and network drives, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
   </picture>
 </p>
 
@@ -160,10 +163,11 @@ From source:
 
 - **Menu items don't appear:** hold ⌥, right-click Finder in the Dock and choose **Relaunch**. Also check that **Finder Menu** is turned on under System Settings → General → Login Items & Extensions → Finder extensions.
 - **Asked for permission again after reinstalling:** expected. Every build is signed locally with a new signature, so macOS asks again.
+- **A drive shows the Finder Menu icon in Finder's sidebar:** some macOS versions give the drives a Finder extension works on that app's icon. It's only the icon. If it bothers you, untick **Also on external and network drives** in [settings](#settings), which also takes the menu off those drives.
 
 ## How it works
 
-- `Sources/FinderMenuExtension` is a [Finder Sync extension](https://developer.apple.com/documentation/findersync) that adds the menu items to every folder. Finder extensions must run sandboxed, so this part only reads the clicked folder and copies paths.
+- `Sources/FinderMenuExtension` is a [Finder Sync extension](https://developer.apple.com/documentation/findersync) that adds the menu items to every folder. Finder only asks it about the drives it lists, so it lists every mounted drive and updates the list when one is mounted or ejected. Finder extensions must run sandboxed, so this part only reads the clicked folder and copies paths.
 - `Sources/FinderMenu` is a small helper app that isn't sandboxed and has no Dock icon. The extension hands it actions through a `findermenu://` URL, and the helper ignores those URLs from anything else. It creates the files, opens the terminal and moves the Finder window, then quits.
 - `Sources/Shared/Settings.swift` holds the list of menu items and reads the settings; `Sources/FinderMenu/SettingsWindow.swift` is the settings window. The helper writes the settings, and the extension only reads them.
 - `Sources/Shared/Templates.swift` holds the New File templates (saved file names). The extension builds the New File submenu from them, and the helper looks up the chosen template by id, so the file name never travels in the URL.
@@ -178,8 +182,8 @@ From source:
 You build Finder Menu yourself from this source, so there's no downloaded app to trust. Everything below can be checked in the code:
 
 - **No network access.** There's no networking code, so nothing is sent anywhere: no telemetry, no analytics, no update checks.
-- **Small enough to read.** About 850 lines of Swift and 170 lines of shell scripts (`install.sh`, `uninstall.sh` and `scripts/`). Read them before you run them.
-- **Sandboxed Finder extension.** It can't read your files. It only gets the folder you right-click and the items you select, plus read-only access to Finder Menu's own settings (which items to show, plus any New File templates).
+- **Small enough to read.** About 900 lines of Swift and 170 lines of shell scripts (`install.sh`, `uninstall.sh` and `scripts/`). Read them before you run them.
+- **Sandboxed Finder extension.** It can't read your files. It only gets the folder you right-click, the items you select and the list of mounted drives, plus read-only access to Finder Menu's own settings (which items to show and where, plus any New File templates).
 - **The helper only acts when you pick a menu item.** It creates an empty file with the name you type or a template name you saved (never overwriting anything), opens a terminal or an app in a folder, or moves the Finder window up a level.
 - **Links from other apps are ignored.** The extension sends actions to the helper as `findermenu://` links. Other apps can send those links too, and so can a website after your browser asks you. Opening a folder they choose in a terminal or IDE could run code from it, so the helper checks the code signature of whatever sent each link and ignores any that didn't come from its own Finder extension. On top of that, it only acts on folders that exist, only opens apps from its built-in IDE list (or one you pick yourself), asks before a custom New File, and for templates only uses a file name you already saved (never taken from the URL).
 - **One permission.** Go to Parent Folder asks once to control Finder. Finder Menu doesn't ask for Full Disk Access, Accessibility or anything else.

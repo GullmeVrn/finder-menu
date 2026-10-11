@@ -5,8 +5,28 @@ import FinderSync
 class FinderMenuSync: FIFinderSync {
     override init() {
         super.init()
-        // Show the menu in every folder on the Mac.
-        FIFinderSyncController.default().directoryURLs = [URL(fileURLWithPath: "/")]
+        watchDrives()
+        // Drives come and go while Finder runs, and the settings window can turn them off or on.
+        let workspace = NSWorkspace.shared.notificationCenter
+        workspace.addObserver(self, selector: #selector(watchDrives(_:)), name: NSWorkspace.didMountNotification, object: nil)
+        workspace.addObserver(self, selector: #selector(watchDrives(_:)), name: NSWorkspace.didUnmountNotification, object: nil)
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(watchDrives(_:)), name: otherDrivesChanged, object: nil)
+    }
+
+    // Finder shows the menu only in these folders and the folders inside them. "/" is just the startup
+    // disk: Finder treats every other drive (USB drives, disk images, network shares, FUSE mounts) as a
+    // separate root, so list each one too.
+    @objc private func watchDrives(_ notification: Notification? = nil) {
+        var roots = [URL(fileURLWithPath: "/")]
+        if showsOnOtherDrives {
+            roots += FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: nil, options: .skipHiddenVolumes) ?? []
+        }
+        FIFinderSyncController.default().directoryURLs = Set(roots)
+    }
+
+    // The top of a drive, where there's no parent folder to go to.
+    private func isDriveRoot(_ url: URL) -> Bool {
+        (FIFinderSyncController.default().directoryURLs ?? []).contains { $0.path == url.path }
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
@@ -27,7 +47,7 @@ class FinderMenuSync: FIFinderSync {
             case "open-with": entry.submenu = Self.openWithMenu()
             case "copy-path": entry.action = #selector(copyPath(_:))
             case "parent-folder":
-                guard let dir = currentFolder, dir.path != "/" else { continue }
+                guard let dir = currentFolder, !isDriveRoot(dir) else { continue }
                 entry.action = #selector(goUp(_:))
             default: continue
             }

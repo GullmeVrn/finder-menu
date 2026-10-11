@@ -39,6 +39,9 @@ final class SettingsWindowController: NSWindowController {
             box.state = isHidden(item.id) ? .off : .on
             return box
         }
+        let drivesBox = NSButton(checkboxWithTitle: NSLocalizedString("Also on external and network drives", comment: ""),
+                                 target: self, action: #selector(toggleOtherDrives(_:)))
+        drivesBox.state = showsOnOtherDrives ? .on : .off
 
         terminalPopup.target = self
         terminalPopup.action = #selector(pickTerminal(_:))
@@ -60,13 +63,14 @@ final class SettingsWindowController: NSWindowController {
         let terminalLabel = Self.sectionLabel(NSLocalizedString("Open Terminal Here uses", comment: ""))
         let templatesLabel = Self.sectionLabel(NSLocalizedString("New File templates", comment: ""))
 
-        let stack = NSStackView(views: [header, itemsLabel] + checkboxes + [terminalLabel, terminalPopup, templatesLabel, templatesStack, note])
+        let stack = NSStackView(views: [header, itemsLabel] + checkboxes + [drivesBox, terminalLabel, terminalPopup, templatesLabel, templatesStack, note])
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 8
         stack.setCustomSpacing(20, after: header)
         stack.setCustomSpacing(10, after: itemsLabel)
-        stack.setCustomSpacing(20, after: checkboxes.last!)
+        stack.setCustomSpacing(14, after: checkboxes.last!)
+        stack.setCustomSpacing(20, after: drivesBox)
         stack.setCustomSpacing(10, after: terminalLabel)
         stack.setCustomSpacing(20, after: terminalPopup)
         stack.setCustomSpacing(10, after: templatesLabel)
@@ -179,6 +183,12 @@ final class SettingsWindowController: NSWindowController {
         let item = menuItems[sender.tag]
         setHidden(item.id, sender.state == .off)
         if item.id == "terminal" { terminalPopup.isEnabled = sender.state == .on }
+    }
+
+    // The extension picks its drives when it starts, not on every right-click, so tell it to pick again.
+    @objc private func toggleOtherDrives(_ sender: NSButton) {
+        showsOnOtherDrives = sender.state == .on
+        DistributedNotificationCenter.default().postNotificationName(otherDrivesChanged, object: nil, userInfo: nil, deliverImmediately: true)
     }
 
     // Automatic, the installed terminals Finder Menu knows, a previously chosen other app, then "Other App…".

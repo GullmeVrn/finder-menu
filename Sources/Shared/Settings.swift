@@ -27,3 +27,14 @@ var chosenTerminal: String? {
     get { settings.string(forKey: "Terminal") }
     set { if let newValue { settings.set(newValue, forKey: "Terminal") } else { settings.removeObject(forKey: "Terminal") } }
 }
+
+// Whether the menu also appears on drives other than the startup disk: external drives, disk images,
+// network shares. On unless turned off in settings.
+var showsOnOtherDrives: Bool {
+    get { !settings.bool(forKey: "HideOnOtherDrives") }
+    set { if newValue { settings.removeObject(forKey: "HideOnOtherDrives") } else { settings.set(true, forKey: "HideOnOtherDrives") } }
+}
+
+// The settings window posts this when showsOnOtherDrives changes. Finder only asks the extension about
+// drives it already covers, so the extension can't pick up a newly allowed drive on the next right-click.
+let otherDrivesChanged = Notification.Name("local.findermenu.other-drives-changed")

@@ -367,6 +367,7 @@ const scenes = {
           gap(20), h('div', { cls: 'section' }, 'Show in the right-click menu'), gap(10),
           ['New File…', 'Open Terminal Here', 'Open Folder With', 'Copy Path', 'Go to Parent Folder']
             .flatMap((title, i) => [i ? gap(8) : null, checkbox(title)]),
+          gap(14), checkbox('Also on external and network drives'),
           gap(20), h('div', { cls: 'section' }, 'Open Terminal Here uses'), gap(10),
           h('div', { cls: 'popup' }, appIcon('com.googlecode.iterm2'), 'iTerm2',
             sym('chevron.up.chevron.down', 10, 'semibold', 'updown')),
