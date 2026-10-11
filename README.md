@@ -67,7 +67,14 @@ Changes apply the next time you right-click. You can also set the terminal from 
 
 ## Languages
 
-Finder Menu uses your Mac's language: English, German (translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)), Italian or Russian. To add a language, copy `Resources/en.lproj` to `Resources/<code>.lproj`, translate the text in it, and add the code to `CFBundleLocalizations` in both `Resources/*-Info.plist` files.
+Finder Menu uses your Mac's language:
+
+- 🇺🇸 English
+- 🇩🇪 German, translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)
+- 🇮🇹 Italian
+- 🇷🇺 Russian
+
+Any other language falls back to English. To add yours, copy `Resources/en.lproj` to `Resources/<code>.lproj`, translate the text in it, add the code to `CFBundleLocalizations` in both `Resources/*-Info.plist` files, and open a pull request.
 
 ## Uninstall
 
@@ -96,6 +103,7 @@ From source:
 - `Sources/Shared/Settings.swift` holds the list of menu items and reads the settings; `Sources/FinderMenu/SettingsWindow.swift` is the settings window. The helper writes the settings, and the extension only reads them.
 - `Sources/Shared/Editors.swift` is the IDE list. The extension builds the submenu from it, and the helper refuses links naming any app that isn't on it.
 - `scripts/build.sh` compiles and signs the app; `scripts/finder-menu enable|disable` copies it into `~/Applications` and turns the extension on or off. `install.sh`, `uninstall.sh` and the Homebrew formula all use these two.
+- `Resources/*.lproj` holds the translations, one folder per language. `scripts/build.sh` copies them into both the helper and the extension, because the extension shows the menu titles.
 - `scripts/make-icon.swift` draws the app icon in code and regenerates `Resources/AppIcon.icns` and `docs/icon.png`.
 
 ## Privacy & security
