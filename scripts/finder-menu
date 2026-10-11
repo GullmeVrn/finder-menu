@@ -28,6 +28,7 @@ enable() {
     pluginkit -e use -i "$EXT_ID"
     sleep 1
     if pluginkit -m -i "$EXT_ID" | grep -q "^+.*$EXT_ID"; then
+      restart_extension
       echo "Finder Menu is on. Right-click inside any Finder folder."
       echo "To choose which items appear and which terminal opens: finder-menu settings"
       return
@@ -36,6 +37,22 @@ enable() {
   echo "Installed, but macOS didn't enable the Finder extension. Turn on \"Finder Menu\" in" >&2
   echo "System Settings → General → Login Items & Extensions, or run: finder-menu enable" >&2
   exit 1
+}
+
+# Right after a reinstall, Finder can start the extension twice (every menu item then shows up
+# twice) or not at all. Restart it into exactly one running copy.
+restart_extension() {
+  for _ in 1 2 3 4 5; do
+    pkill -f FinderMenuExtension.appex 2>/dev/null || true
+    sleep 1
+    pluginkit -e use -i "$EXT_ID"
+    sleep 1
+    if [ "$(pgrep -f FinderMenuExtension.appex | wc -l | tr -d ' ')" = 1 ]; then
+      return
+    fi
+  done
+  echo "Finder Menu is registered, but its Finder extension didn't restart cleanly." >&2
+  echo "If the menu is missing or doubled, relaunch Finder (hold Option, right-click Finder in the Dock → Relaunch)." >&2
 }
 
 disable() {
