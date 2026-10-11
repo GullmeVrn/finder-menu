@@ -19,8 +19,12 @@ enable() {
   fi
   pkill -f FinderMenuExtension.appex 2>/dev/null || true
   mkdir -p "$DEST"
-  rm -rf "$INSTALLED"
-  cp -R "$app" "$DEST/"
+  # Re-enabling the installed copy itself must not delete it before copying.
+  if [ "$(cd "$app" && pwd -P)" != "$(cd "$INSTALLED" 2>/dev/null && pwd -P)" ]; then
+    rm -rf "$INSTALLED"
+    # Copy to the full name: with a trailing slash ("Finder Menu.app/"), "cp -R app dir/" copies only its contents.
+    cp -R "$app" "$INSTALLED"
+  fi
   "$LSREGISTER" -f "$INSTALLED"
   # Registration can silently lose a race with a just-removed copy, so confirm it and retry.
   for _ in 1 2 3 4 5; do
