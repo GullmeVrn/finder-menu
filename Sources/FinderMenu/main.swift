@@ -130,10 +130,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             set dest to (POSIX file \(lit(parent)) as alias)
             repeat with w in Finder windows
                 try
-                    if POSIX path of (target of w as alias) is \(lit(dir + "/")) then
-                        set target of w to dest
-                        return
-                    end if
+                    -- Case-only paths can name different folders on case-sensitive volumes.
+                    considering case
+                        if POSIX path of (target of w as alias) is \(lit(dir + "/")) then
+                            set target of w to dest
+                            return
+                        end if
+                    end considering
                 end try
             end repeat
             if (count of Finder windows) > 0 then set target of front Finder window to dest
