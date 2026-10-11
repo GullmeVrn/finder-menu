@@ -15,7 +15,20 @@ class FinderMenuSync: FIFinderSync {
         for item in menuItems where !isHidden(item.id) {
             let entry = NSMenuItem(title: NSLocalizedString(item.title, comment: ""), action: nil, keyEquivalent: "")
             switch item.id {
-            case "new-file": entry.action = #selector(newFile(_:))
+            case "new-file":
+                let templates = fileTemplates
+                // Finder copies this menu and ignores isAlternate, so ⌥ can't swap items live.
+                // Instead, build Remove items when Option is already down at right-click time.
+                let removing = NSEvent.modifierFlags.contains(.option)
+                if templates.isEmpty {
+                    entry.action = #selector(newFile(_:))
+                } else if removing {
+                    entry.title = NSLocalizedString("Remove Template", comment: "")
+                    entry.submenu = Self.removeTemplateMenu(templates)
+                } else {
+                    entry.title = NSLocalizedString("New File", comment: "")
+                    entry.submenu = Self.newFileMenu(templates)
+                }
             case "terminal": entry.action = #selector(openTerminal(_:))
             case "open-with": entry.submenu = Self.openWithMenu()
             case "copy-path": entry.action = #selector(copyPath(_:))
@@ -79,6 +92,32 @@ class FinderMenuSync: FIFinderSync {
         return sub
     }
 
+    // Templates become one-click items; Custom… keeps the name dialog (with Save as template).
+    // Finder copies the menu and drops representedObject, so the tag is the index into
+    // fileTemplates — same pattern as Open Folder With.
+    static func newFileMenu(_ templates: [FileTemplate]) -> NSMenu {
+        let sub = NSMenu(title: "")
+        for (i, template) in templates.enumerated() {
+            let item = sub.addItem(withTitle: template.filename, action: #selector(FinderMenuSync.newFileFromTemplate(_:)), keyEquivalent: "")
+            item.tag = i
+            item.image = symbol("doc")
+        }
+        sub.addItem(.separator())
+        sub.addItem(withTitle: NSLocalizedString("Custom…", comment: ""), action: #selector(FinderMenuSync.newFile(_:)), keyEquivalent: "")
+            .image = symbol("doc.badge.plus")
+        return sub
+    }
+
+    static func removeTemplateMenu(_ templates: [FileTemplate]) -> NSMenu {
+        let sub = NSMenu(title: "")
+        for (i, template) in templates.enumerated() {
+            let item = sub.addItem(withTitle: template.filename, action: #selector(FinderMenuSync.removeTemplate(_:)), keyEquivalent: "")
+            item.tag = i
+            item.image = symbol("trash")
+        }
+        return sub
+    }
+
     @objc func goUp(_ sender: AnyObject?) {
         guard let dir = currentFolder else { return }
         callHelper("up", dir.path)
@@ -105,6 +144,23 @@ class FinderMenuSync: FIFinderSync {
         callHelper("newfile", dir.path)
     }
 
+    @objc func newFileFromTemplate(_ sender: AnyObject?) {
+        let templates = fileTemplates
+        guard let dir = currentFolder,
+              let tag = (sender as? NSMenuItem)?.tag,
+              templates.indices.contains(tag) else { return }
+        callHelper("newfile", dir.path, template: templates[tag].id)
+    }
+
+    @objc func removeTemplate(_ sender: AnyObject?) {
+        let templates = fileTemplates
+        guard let dir = currentFolder,
+              let tag = (sender as? NSMenuItem)?.tag,
+              templates.indices.contains(tag) else { return }
+        // Extension can only read settings; the helper performs the delete.
+        callHelper("removetemplate", dir.path, template: templates[tag].id)
+    }
+
     @objc func openTerminal(_ sender: AnyObject?) {
         guard let target = clickedTarget else { return }
         callHelper("terminal", target.path)
@@ -118,12 +174,13 @@ class FinderMenuSync: FIFinderSync {
     }
 
     // The extension is sandboxed, so file creation and app launching happen in the helper app.
-    private func callHelper(_ action: String, _ path: String, app: String? = nil) {
+    private func callHelper(_ action: String, _ path: String, app: String? = nil, template: String? = nil) {
         var c = URLComponents()
         c.scheme = "findermenu"
         c.host = action
         c.queryItems = [URLQueryItem(name: "path", value: path)]
         if let app { c.queryItems?.append(URLQueryItem(name: "app", value: app)) }
+        if let template { c.queryItems?.append(URLQueryItem(name: "template", value: template)) }
         if let url = c.url { NSWorkspace.shared.open(url) }
     }
 }

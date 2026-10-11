@@ -1,0 +1,41 @@
+/* Menu Items */
+"New File…" = "Новий файл…";
+"Open Terminal Here" = "Відкрити в терміналі";
+"Open Folder With" = "Відкрити папку в програмі";
+"Copy Path" = "Скопіювати шлях";
+"Go to Parent Folder" = "Перейти до батьківської папки";
+"Other App…" = "Інша програма…";
+
+/* New File Dialog */
+"New File" = "Новий файл";
+"In: %@" = "У папці: %@";
+"⚠️ That isn't a valid file name." = "⚠️ Неприпустима назва файлу.";
+"⚠️ \"%@\" already exists." = "⚠️ «%@» уже існує.";
+"⚠️ Couldn't create the file here (no permission?)." = "⚠️ Не вдалося створити тут файл (немає прав доступу?).";
+"Create" = "Створити";
+"Cancel" = "Скасувати";
+"Save as template" = "Зберегти як шаблон";
+"Custom…" = "Власний…";
+"Remove Template" = "Видалити шаблон";
+
+/* Open Folder With Dialog */
+"Open “%@” with:" = "Відкрити «%@» у програмі:";
+"Open" = "Відкрити";
+
+/* Main Menu */
+"Quit Finder Menu" = "Завершити Finder Menu";
+"Window" = "Вікно";
+"Close" = "Закрити";
+
+/* Settings Window */
+"Finder Menu Settings" = "Параметри Finder Menu";
+"Show in the right-click menu" = "Показувати в контекстному меню";
+"Open Terminal Here uses" = "Термінал для «Відкрити в терміналі»";
+"Automatic (%@)" = "Автоматично (%@)";
+"Changes apply the next time you right-click in Finder." = "Зміни набудуть чинності після наступного клацання правою кнопкою в Finder.";
+"Choose the app for Open Terminal Here:" = "Виберіть програму для «Відкрити в терміналі»:";
+"Choose" = "Вибрати";
+"New File templates" = "Шаблони «Новий файл»";
+"No templates yet." = "Ще немає шаблонів.";
+"Remove" = "Видалити";
+"Remove All" = "Видалити всі";

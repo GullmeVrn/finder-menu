@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 final class SettingsWindowController: NSWindowController {
     private let terminalPopup = NSPopUpButton()
     private let chooseOtherTag = 1
+    private let templatesStack = NSStackView()
 
     convenience init() {
         let window = NSWindow(contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
@@ -44,13 +45,22 @@ final class SettingsWindowController: NSWindowController {
         terminalPopup.isEnabled = !isHidden("terminal")
         reloadTerminalPopup()
 
+        // .width so each row stretches; Remove can sit on the trailing edge.
+        templatesStack.orientation = .vertical
+        templatesStack.alignment = .width
+        templatesStack.spacing = 4
+        templatesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        reloadTemplates()
+
         let note = NSTextField(labelWithString: NSLocalizedString("Changes apply the next time you right-click in Finder.", comment: ""))
         note.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
         note.textColor = .secondaryLabelColor
 
         let itemsLabel = Self.sectionLabel(NSLocalizedString("Show in the right-click menu", comment: ""))
         let terminalLabel = Self.sectionLabel(NSLocalizedString("Open Terminal Here uses", comment: ""))
-        let stack = NSStackView(views: [header, itemsLabel] + checkboxes + [terminalLabel, terminalPopup, note])
+        let templatesLabel = Self.sectionLabel(NSLocalizedString("New File templates", comment: ""))
+
+        let stack = NSStackView(views: [header, itemsLabel] + checkboxes + [terminalLabel, terminalPopup, templatesLabel, templatesStack, note])
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 8
@@ -59,7 +69,11 @@ final class SettingsWindowController: NSWindowController {
         stack.setCustomSpacing(20, after: checkboxes.last!)
         stack.setCustomSpacing(10, after: terminalLabel)
         stack.setCustomSpacing(20, after: terminalPopup)
+        stack.setCustomSpacing(10, after: templatesLabel)
+        stack.setCustomSpacing(20, after: templatesStack)
         terminalPopup.widthAnchor.constraint(greaterThanOrEqualToConstant: 240).isActive = true
+        // Match the full settings column, not just the terminal popup's intrinsic width.
+        templatesStack.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
 
         // NSStackView ignores its trailing inset, so pin the margins explicitly.
         let content = NSView()
@@ -78,6 +92,78 @@ final class SettingsWindowController: NSWindowController {
         let label = NSTextField(labelWithString: text)
         label.font = .boldSystemFont(ofSize: NSFont.systemFontSize)
         return label
+    }
+
+    private func resizeToFit() {
+        guard let window, let content = window.contentView else { return }
+        window.setContentSize(content.fittingSize)
+    }
+
+    private func reloadTemplates() {
+        templatesStack.views.forEach { $0.removeFromSuperview() }
+        let templates = fileTemplates
+        if templates.isEmpty {
+            let empty = NSTextField(labelWithString: NSLocalizedString("No templates yet.", comment: ""))
+            empty.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+            empty.textColor = .tertiaryLabelColor
+            templatesStack.addArrangedSubview(empty)
+        } else {
+            for (index, template) in templates.enumerated() {
+                templatesStack.addArrangedSubview(templateRow(template, index: index))
+            }
+            if templates.count > 1 {
+                let removeAll = NSButton(title: NSLocalizedString("Remove All", comment: ""), target: self, action: #selector(removeAllTemplates(_:)))
+                removeAll.bezelStyle = .inline
+                removeAll.setContentHuggingPriority(.required, for: .horizontal)
+                let row = NSStackView(views: [NSView(), removeAll])
+                row.orientation = .horizontal
+                row.alignment = .centerY
+                row.distribution = .fill
+                templatesStack.addArrangedSubview(row)
+            }
+        }
+        resizeToFit()
+    }
+
+    private func templateRow(_ template: FileTemplate, index: Int) -> NSView {
+        let name = NSTextField(labelWithString: template.filename)
+        name.translatesAutoresizingMaskIntoConstraints = false
+        name.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        name.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let remove = NSButton(title: NSLocalizedString("Remove", comment: ""), target: self, action: #selector(removeTemplate(_:)))
+        remove.translatesAutoresizingMaskIntoConstraints = false
+        remove.bezelStyle = .inline
+        remove.tag = index
+        remove.setContentHuggingPriority(.required, for: .horizontal)
+
+        let row = NSView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+        row.addSubview(name)
+        row.addSubview(remove)
+        NSLayoutConstraint.activate([
+            name.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            name.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            name.trailingAnchor.constraint(lessThanOrEqualTo: remove.leadingAnchor, constant: -8),
+            remove.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            remove.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            remove.topAnchor.constraint(equalTo: row.topAnchor),
+            remove.bottomAnchor.constraint(equalTo: row.bottomAnchor),
+        ])
+        return row
+    }
+
+    @objc private func removeTemplate(_ sender: NSButton) {
+        var templates = fileTemplates
+        guard templates.indices.contains(sender.tag) else { return }
+        templates.remove(at: sender.tag)
+        fileTemplates = templates
+        reloadTemplates()
+    }
+
+    @objc private func removeAllTemplates(_ sender: Any?) {
+        fileTemplates = []
+        reloadTemplates()
     }
 
     @objc private func toggleItem(_ sender: NSButton) {

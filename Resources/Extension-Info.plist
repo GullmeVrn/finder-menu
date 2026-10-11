@@ -15,9 +15,9 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3.0</string>
+	<string>1.4.0</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>7</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleLocalizations</key>
@@ -26,6 +26,7 @@
 		<string>de</string>
 		<string>ru</string>
 		<string>it</string>
+		<string>uk</string>
 	</array>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
