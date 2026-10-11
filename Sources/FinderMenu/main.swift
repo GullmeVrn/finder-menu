@@ -204,13 +204,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let full = (dir as NSString).appendingPathComponent(name)
             if name.isEmpty || name.contains("/") || name == "." || name == ".." {
                 problem = "⚠️ That isn't a valid file name."
-            } else if FileManager.default.fileExists(atPath: full) {
-                problem = "⚠️ \"\(name)\" already exists."
-            } else if !FileManager.default.createFile(atPath: full, contents: nil) {
-                problem = "⚠️ Couldn't create the file here (no permission?)."
-            } else {
+                continue
+            }
+            do {
+                // A separate existence check cannot prevent another process from creating the same path.
+                try Data().write(to: URL(fileURLWithPath: full), options: .withoutOverwriting)
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: full)])
                 return
+            } catch let error as CocoaError where error.code == .fileWriteFileExists {
+                problem = "⚠️ \"\(name)\" already exists."
+            } catch {
+                problem = "⚠️ Couldn't create the file here (no permission?)."
             }
         }
     }
