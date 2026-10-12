@@ -1,0 +1,48 @@
+/* Menu Items */
+"New File…" = "Nuevo archivo…";
+"Open Terminal Here" = "Abrir Terminal aquí";
+"Open Folder With" = "Abrir carpeta con";
+"Copy Path" = "Copiar ruta";
+"Go to Parent Folder" = "Ir a la carpeta superior";
+"Other App…" = "Otra aplicación…";
+
+/* New File Dialog */
+"New File" = "Nuevo archivo";
+"In: %@" = "En: %@";
+"⚠️ That isn't a valid file name." = "⚠️ Ese nombre de archivo no es válido.";
+"⚠️ \"%@\" already exists." = "⚠️ \"%@\" ya existe.";
+"⚠️ Couldn't create the file here (no permission?)." = "⚠️ No se pudo crear el archivo aquí (¿faltan permisos?).";
+"Create" = "Crear";
+"Cancel" = "Cancelar";
+"Save as template" = "Guardar como plantilla";
+"Manage Templates…" = "Gestionar plantillas…";
+
+/* Open Folder With Dialog */
+"Open “%@” with:" = "Abrir “%@” con:";
+"Open" = "Abrir";
+
+/* Main Menu */
+"Quit Finder Menu" = "Salir de Finder Menu";
+"Edit" = "Edición";
+"Undo" = "Deshacer";
+"Redo" = "Rehacer";
+"Cut" = "Cortar";
+"Copy" = "Copiar";
+"Paste" = "Pegar";
+"Select All" = "Seleccionar todo";
+"Window" = "Ventana";
+"Close" = "Cerrar";
+
+/* Settings Window */
+"Finder Menu Settings" = "Configuración de Finder Menu";
+"Show in the right-click menu" = "Mostrar en el menú contextual";
+"Also on external and network drives" = "También en unidades externas y de red";
+"Open Terminal Here uses" = "Abrir Terminal aquí utiliza";
+"Automatic (%@)" = "Automático (%@)";
+"Changes apply the next time you right-click in Finder." = "Los cambios se aplicarán la próxima vez que hagas clic derecho en Finder.";
+"Choose the app for Open Terminal Here:" = "Selecciona la aplicación para Abrir Terminal aquí:";
+"Choose" = "Seleccionar";
+"New File templates" = "Plantillas de archivos nuevos";
+"No templates yet." = "Todavía no hay plantillas.";
+"Remove" = "Eliminar";
+"Remove All" = "Eliminar todo";
