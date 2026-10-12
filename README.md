@@ -140,6 +140,7 @@ Finder Menu uses your Mac's language:
 - 🇩🇪 German, translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)
 - 🇮🇹 Italian
 - 🇷🇺 Russian
+- 🇪🇸 Spanish, translated by [@LuigimonSoft](https://github.com/LuigimonSoft)
 - 🇺🇦 Ukrainian, translated by [@artemartemenko](https://github.com/artemartemenko)
 
 Any other language falls back to English. Want yours? See [Contributing](#contributing).
