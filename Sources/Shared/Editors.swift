@@ -3,6 +3,8 @@
 let editors: [(id: String, name: String)] = [
     ("com.microsoft.VSCode", "Visual Studio Code"),
     ("com.microsoft.VSCodeInsiders", "VS Code Insiders"),
+    ("com.vscodium", "VSCodium"),
+    ("com.vscodium.VSCodiumInsiders", "VSCodium Insiders"),
     ("com.todesktop.230313mzl4w4u92", "Cursor"),
     ("com.exafunction.windsurf", "Windsurf"),
     ("com.google.antigravity", "Antigravity"),
@@ -26,5 +28,4 @@ let editors: [(id: String, name: String)] = [
     ("com.apple.dt.Xcode", "Xcode"),
     ("com.panic.Nova", "Nova"),
     ("com.barebones.bbedit", "BBEdit"),
-    ("com.vscodium", "VSCodium"),
 ]
