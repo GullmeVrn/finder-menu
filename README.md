@@ -139,7 +139,7 @@ Changes apply the next time you right-click. You can also set the terminal from 
 
 Finder Menu uses your Mac's language, or English if it isn't one of these:
 
-<table>
+<table align="center">
   <tr>
     <td align="center" valign="top" width="160">🇺🇸 <b>English</b></td>
     <td align="center" valign="top" width="160">🇨🇳 <b>简体中文</b><br><sub>by <a href="https://github.com/yunyv">@yunyv</a></sub></td>
