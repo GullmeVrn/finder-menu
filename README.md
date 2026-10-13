@@ -149,10 +149,13 @@ Finder Menu uses your Mac's language, or English if it isn't one of these:
     <td align="center" valign="top" width="160">🇮🇹 <b>Italiano</b></td>
   </tr>
   <tr>
+    <td align="center" valign="top">🇮🇷 <b>فارسی</b><br><sub>by <a href="https://github.com/aliafshany">@aliafshany</a></sub></td>
     <td align="center" valign="top">🇷🇺 <b>Русский</b></td>
     <td align="center" valign="top">🇪🇸 <b>Español</b><br><sub>by <a href="https://github.com/LuigimonSoft">@LuigimonSoft</a></sub></td>
     <td align="center" valign="top">🇺🇦 <b>Українська</b><br><sub>by <a href="https://github.com/artemartemenko">@artemartemenko</a></sub></td>
-    <td align="center" valign="top">➕ <a href="#contributing"><b>Add yours</b></a></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" colspan="4">➕ <a href="#contributing"><b>Add yours</b></a></td>
   </tr>
 </table>
 
