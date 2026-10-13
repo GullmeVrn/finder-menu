@@ -155,6 +155,9 @@ Finder Menu uses your Mac's language, or English if it isn't one of these:
     <td align="center" valign="top">🇺🇦 <b>Українська</b><br><sub>by <a href="https://github.com/artemartemenko">@artemartemenko</a></sub></td>
   </tr>
   <tr>
+    <td align="center" valign="top">🇫🇷 <b>Français</b><br><sub>by <a href="https://github.com/GullmeVrn">@GullmeVrn</a></sub></td>
+  </tr>
+  <tr>
     <td align="center" valign="top" colspan="4">➕ <a href="#contributing"><b>Add yours</b></a></td>
   </tr>
 </table>
