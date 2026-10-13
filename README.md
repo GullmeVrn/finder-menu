@@ -46,7 +46,7 @@
     <td align="center" valign="top" width="25%"><h3>📂</h3><b>Built-in</b><br>Five actions in Finder's own right-click menu.<br><br></td>
     <td align="center" valign="top" width="25%"><h3>🧰</h3><b>Your tools</b><br>Terminals, VS Code, Cursor, JetBrains, Xcode…<br><br></td>
     <td align="center" valign="top" width="25%"><h3>🔒</h3><b>Private</b><br>No network code, no telemetry.<br><br></td>
-    <td align="center" valign="top" width="25%"><h3>🪶</h3><b>Tiny</b><br>About 900 lines of Swift, built on your Mac.<br><br></td>
+    <td align="center" valign="top" width="25%"><h3>🪶</h3><b>Tiny</b><br>About 1,000 lines of Swift, built on your Mac.<br><br></td>
   </tr>
 </table>
 
@@ -126,10 +126,12 @@ Open **Finder Menu** from Spotlight or your Applications folder, or run `finder-
 - pick the terminal for **Open Terminal Here**. Automatic uses the first one installed, in this order: iTerm2, Ghostty, Warp, WezTerm, kitty, Alacritty, Terminal. **Other App…** lets you pick any app.
 - remove [New File templates](#new-file-templates)
 
+It also shows the version you have and links to this page. **About Finder Menu** in the app menu shows the same.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png">
-    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: a checkbox for each right-click menu item, one for external and network drives and one for icons, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
+    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: the app's version and a link to its GitHub repository, a checkbox for each right-click menu item, one for external and network drives and one for icons, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
   </picture>
 </p>
 
@@ -194,7 +196,7 @@ From source:
 You build Finder Menu yourself from this source, so there's no downloaded app to trust. Everything below can be checked in the code:
 
 - **No network access.** There's no networking code, so nothing is sent anywhere: no telemetry, no analytics, no update checks.
-- **Small enough to read.** About 900 lines of Swift and 185 lines of shell scripts (`install.sh`, `uninstall.sh` and `scripts/`). Read them before you run them.
+- **Small enough to read.** About 1,000 lines of Swift and 185 lines of shell scripts (`install.sh`, `uninstall.sh` and `scripts/`). Read them before you run them.
 - **Sandboxed Finder extension.** It can't read your files. It only gets the folder you right-click, the items you select and the list of mounted drives, plus read-only access to Finder Menu's own settings (which items to show, where, and with or without icons, plus any New File templates).
 - **The helper only acts when you pick a menu item.** It creates an empty file with the name you type or a template name you saved (never overwriting anything), opens a terminal or an app in a folder, or moves the Finder window up a level.
 - **Links from other apps are ignored.** The extension sends actions to the helper as `findermenu://` links. Other apps can send those links too, and so can a website after your browser asks you. Opening a folder they choose in a terminal or IDE could run code from it, so the helper checks the code signature of whatever sent each link and ignores any that didn't come from its own Finder extension. On top of that, it only acts on folders that exist, only opens apps from its built-in IDE list (or one you pick yourself), asks before a custom New File, and for templates only uses a file name you already saved (never taken from the URL).
