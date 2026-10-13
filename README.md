@@ -126,10 +126,12 @@ Open **Finder Menu** from Spotlight or your Applications folder, or run `finder-
 - pick the terminal for **Open Terminal Here**. Automatic uses the first one installed, in this order: iTerm2, Ghostty, Warp, WezTerm, kitty, Alacritty, Terminal. **Other App…** lets you pick any app.
 - remove [New File templates](#new-file-templates)
 
+It also shows the version you have and links to this page. **About Finder Menu** in the app menu shows the same.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/settings-dark.png">
-    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: a checkbox for each right-click menu item, one for external and network drives and one for icons, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
+    <img src="docs/images/settings-light.png" width="380" alt="Finder Menu settings window: the app's version and a link to its GitHub repository, a checkbox for each right-click menu item, one for external and network drives and one for icons, a picker for the terminal Open Terminal Here uses, and the saved New File templates, each with a Remove button">
   </picture>
 </p>
 
