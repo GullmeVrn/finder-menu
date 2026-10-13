@@ -137,17 +137,22 @@ Changes apply the next time you right-click. You can also set the terminal from 
 
 ## Languages
 
-Finder Menu uses your Mac's language:
+Finder Menu uses your Mac's language, or English if it isn't one of these:
 
-- 🇺🇸 English
-- 🇩🇪 German, translated by [@9trzj5nztr-design](https://github.com/9trzj5nztr-design)
-- 🇮🇹 Italian
-- 🇷🇺 Russian
-- 🇪🇸 Spanish, translated by [@LuigimonSoft](https://github.com/LuigimonSoft)
-- 🇺🇦 Ukrainian, translated by [@artemartemenko](https://github.com/artemartemenko)
-- 🇨🇳 Chinese (Simplified), translated by [@yunyv](https://github.com/yunyv)
-
-Any other language falls back to English. Want yours? See [Contributing](#contributing).
+<table>
+  <tr>
+    <td align="center" valign="top" width="160">🇺🇸 <b>English</b></td>
+    <td align="center" valign="top" width="160">🇨🇳 <b>简体中文</b><br><sub>by <a href="https://github.com/yunyv">@yunyv</a></sub></td>
+    <td align="center" valign="top" width="160">🇩🇪 <b>Deutsch</b><br><sub>by <a href="https://github.com/9trzj5nztr-design">@9trzj5nztr-design</a></sub></td>
+    <td align="center" valign="top" width="160">🇮🇹 <b>Italiano</b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top">🇷🇺 <b>Русский</b></td>
+    <td align="center" valign="top">🇪🇸 <b>Español</b><br><sub>by <a href="https://github.com/LuigimonSoft">@LuigimonSoft</a></sub></td>
+    <td align="center" valign="top">🇺🇦 <b>Українська</b><br><sub>by <a href="https://github.com/artemartemenko">@artemartemenko</a></sub></td>
+    <td align="center" valign="top">➕ <a href="#contributing"><b>Add yours</b></a></td>
+  </tr>
+</table>
 
 ## Uninstall
 
